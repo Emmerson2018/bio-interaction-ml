@@ -1,0 +1,27 @@
+[project]
+name = "base-tool-ml"
+version = "0.1.0"
+description = "Toolbox de Machine Learning para projetos do IFMaker Lab baseada em Registry Pattern e Configuração Declarativa."
+authors = [
+    { name = "Sérgio Augusto Jr", email = "sergioaugusto.bezerra.jr@gmail.com" }
+]
+dependencies = [
+    "torch>=2.11.0",
+    "torchvision>=0.26.0",
+    "pyyaml>=6.0.3",
+    "tqdm>=4.67.3",
+    "matplotlib>=3.10.9",
+    "seaborn>=0.13.2",
+    "scikit-learn>=1.8.0",
+]
+requires-python = ">=3.11"
+
+[tool.hatch.build.targets.wheel]
+packages = ["base_tool"]
+
+[project.scripts]
+base-train = "base_tool.train:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

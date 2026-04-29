@@ -1,0 +1,42 @@
+name: POC_MLP_With_Metrics
+model_type: SimpleModel
+num_gpu: 0
+
+datasets:
+  train:
+    type: DummyDataset
+    num_samples: 500
+    in_channels: 10
+    out_channels: 1
+    batch_size_per_gpu: 16
+    num_worker_per_gpu: 0
+  val:
+    type: DummyDataset
+    num_samples: 100
+    in_channels: 10
+    out_channels: 1
+
+network_g:
+  type: SimpleMLP
+  in_channels: 10
+  out_channels: 1
+  hidden_channels: 64
+
+train:
+  lr_g: !!float 1e-3
+  total_epochs: 10
+  save_checkpoint_freq: 5
+  val_freq: 2
+  metrics:
+    mse:
+      type: MSEMetric
+    mae:
+      type: MAEMetric
+
+logger:
+  print_freq: 20
+  save_checkpoint_freq: 5
+
+visualization:
+  training_plots:
+    type: LossVisualizer
