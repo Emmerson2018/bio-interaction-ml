@@ -98,3 +98,75 @@ uv run base-generate-blender-dataset -opt options/generate_synthetic_animals_str
 uv run base-train -opt options/train_synthetic_animals_structured.yml
 uv run base-recognize -opt options/train_synthetic_animals_structured.yml --checkpoint experiments/Synthetic_Animals_Classifier_Structured/models/epoch_19.pth --image caminho/para/foto.png
 ```
+
+## Procedimento operacional atual
+
+Para adicionar ou atualizar um animal baseado em modelo Blender:
+
+1. Criar uma subpasta com o nome da classe em `assets/blender_models/`.
+2. Colocar o arquivo do modelo dentro dessa subpasta.
+3. Usar uma extensao suportada: `.blend`, `.blend1`, `.fbx`, `.obj`, `.glb` ou `.gltf`.
+
+Exemplo:
+
+```text
+assets/blender_models/
+  capivara/
+    Capivara.blend1
+  sapo/
+    Sapo_Rhinella marina.blend1
+  novo_animal/
+    Novo_Animal.blend1
+```
+
+Cada subpasta vira uma classe do classificador. O nome da pasta e usado como rotulo.
+
+Depois de adicionar o modelo, gerar o dataset estruturado:
+
+```bash
+uv run base-generate-blender-dataset -opt options/generate_synthetic_animals_structured.yml
+```
+
+O dataset atual sera escrito em:
+
+```text
+datasets/generated/animals_synthetic_structured/
+```
+
+Antes do treino, e necessario auditar visualmente as imagens geradas. Para modelos novos, a orientacao do arquivo Blender pode mudar a frente real do animal. Se as imagens mostrarem costas, barriga ou angulos pouco informativos, ajustar:
+
+```yaml
+class_render_options:
+  novo_animal:
+    front_angle_degrees: 0
+```
+
+A calibracao de `front_angle_degrees` deve privilegiar a vista mais reconhecivel da classe, nao necessariamente a frente geometrica do arquivo 3D.
+
+Exemplos atuais:
+
+```yaml
+class_render_options:
+  capivara:
+    front_angle_degrees: 180
+  sapo:
+    front_angle_degrees: 0
+```
+
+Depois da auditoria visual, treinar:
+
+```bash
+uv run base-train -opt options/train_synthetic_animals_structured.yml
+```
+
+E rodar inferencia:
+
+```bash
+uv run base-recognize -opt options/train_synthetic_animals_structured.yml --checkpoint experiments/Synthetic_Animals_Classifier_Structured/models/epoch_19.pth --image caminho/para/foto.png
+```
+
+Regra importante:
+
+- ADRs registram decisoes.
+- `docs/pipeline-blender-dataset-treino.md` e `README.md` devem conter o tutorial operacional detalhado.
+- Sempre que a baseline mudar de dataset, YAML ou comando, esta ADR e a documentacao operacional devem ser atualizadas juntas.
