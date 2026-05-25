@@ -5,10 +5,10 @@ from base_tool.utils.registry import VISUALIZATION_REGISTRY
 
 @VISUALIZATION_REGISTRY.register()
 class LossVisualizer(BaseVisualizer):
-    """Visualizador genérico de métricas escalares (Losses, Acc, etc)."""
+    """Visualizador generico de metricas escalares (Losses, Acc, etc)."""
     def __init__(self, opt):
         super(LossVisualizer, self).__init__(opt)
-        self.histories = {} # Dicionário de listas para múltiplas curvas
+        self.histories = {} # Dicionario de listas para multiplas curvas
 
     def visualize(self, current_iter, log_dict):
         # log_dict pode conter {'loss_G': 0.1, 'loss_D': 0.2, 'acc': 0.9}
@@ -17,7 +17,7 @@ class LossVisualizer(BaseVisualizer):
                 self.histories[key] = []
             self.histories[key].append((current_iter, value))
         
-        # Gera um plot com múltiplas curvas
+        # Gera um plot com multiplas curvas
         plt.figure(figsize=(10, 5))
         for key, history in self.histories.items():
             iters, values = zip(*history)

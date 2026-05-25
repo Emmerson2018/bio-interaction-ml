@@ -4,7 +4,7 @@ import torch
 class BaseModel(ABC):
     """Interface abstrata para todos os modelos.
     
-    Define os hooks obrigatórios para o ciclo de vida do treinamento.
+    Define os hooks obrigatorios para o ciclo de vida do treinamento.
     """
     def __init__(self, opt):
         self.opt = opt
@@ -20,12 +20,12 @@ class BaseModel(ABC):
 
     @abstractmethod
     def optimize_parameters(self, current_iter):
-        """Passo de otimização (forward, loss, backward, step)."""
+        """Passo de otimizacao (forward, loss, backward, step)."""
         pass
 
     @abstractmethod
     def test(self):
-        """Inferência."""
+        """Inferencia."""
         pass
 
     @abstractmethod

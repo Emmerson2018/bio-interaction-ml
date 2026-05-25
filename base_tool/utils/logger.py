@@ -20,6 +20,6 @@ def get_root_logger(logger_name='base_tool', log_level=logging.INFO, log_file=No
     return logger
 
 def get_env_info():
-    """Retorna informações básicas do ambiente para o log inicial."""
+    """Retorna informacoes basicas do ambiente para o log inicial."""
     import torch
     return f"PyTorch: {torch.__version__} | GPU: {torch.cuda.is_available()}"

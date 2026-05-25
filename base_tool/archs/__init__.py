@@ -7,9 +7,9 @@ arch_folder = os.path.dirname(os.path.abspath(__file__))
 import_modules_from_directory(arch_folder, 'base_tool.archs')
 
 def build_network(opt):
-    """Constrói uma rede neural (nn.Module)."""
+    """Constroi uma rede neural (nn.Module)."""
     arch_type = opt['type']
-    # Remove 'type' para passar os demais parâmetros como kwargs para o construtor da classe
+    # Remove 'type' para passar os demais parametros como kwargs para o construtor da classe
     kwargs = {k: v for k, v in opt.items() if k != 'type'}
     network = ARCH_REGISTRY.get(arch_type)(**kwargs)
     return network

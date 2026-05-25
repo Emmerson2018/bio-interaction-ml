@@ -10,7 +10,7 @@ class BaseVisualizer(ABC):
 
     @abstractmethod
     def visualize(self, current_iter, log_dict):
-        """Método principal. 
-        log_dict contém tudo: losses, metrics, lrs, etc.
+        """Metodo principal. 
+        log_dict contem tudo: losses, metrics, lrs, etc.
         """
         pass

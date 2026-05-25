@@ -8,13 +8,13 @@ data_folder = os.path.dirname(os.path.abspath(__file__))
 import_modules_from_directory(data_folder, 'base_tool.data')
 
 def build_dataset(opt):
-    """Constrói um dataset."""
+    """Constroi um dataset."""
     dataset_type = opt['type']
     dataset = DATASET_REGISTRY.get(dataset_type)(opt)
     return dataset
 
 def build_dataloader(dataset, opt, phase):
-    """Constrói um dataloader."""
+    """Constroi um dataloader."""
     if phase == 'train':
         batch_size = opt['datasets']['train'].get('batch_size_per_gpu', 1)
         num_worker = opt['datasets']['train'].get('num_worker_per_gpu', 0)

@@ -1,14 +1,14 @@
-# 🧪 Base Tool ML
+#  Base Tool ML
 
-Uma toolbox agnóstica para projetos de Machine Learning, focada em escalabilidade, reprodutibilidade e separação de preocupações.
+Uma toolbox agnostica para projetos de Machine Learning, focada em escalabilidade, reprodutibilidade e separacao de preocupacoes.
 
-## 🚀 Como Começar
+##  Como Comecar
 
-### Instalação
-Utilizamos o `uv` para gerenciamento ultrarrápido de dependências:
+### Instalacao
+Utilizamos o `uv` para gerenciamento ultrarrapido de dependencias:
 
 ```bash
-# Clone o repositório
+# Clone o repositorio
 git clone https://github.com/Emmerson2018/bio-interaction-ml base-tool-ml
 cd base-tool-ml
 
@@ -17,7 +17,7 @@ uv sync
 ```
 
 ### Executando um Experimento
-Tudo é controlado via arquivos YAML na pasta `options/`.
+Tudo e controlado via arquivos YAML na pasta `options/`.
 
 ```bash
 uv run base-train -opt options/poc_mlp.yml
@@ -25,9 +25,9 @@ uv run base-train -opt options/poc_mlp.yml
 
 ---
 
-## 🏗️ Arquitetura (Registry Pattern)
+##  Arquitetura (Registry Pattern)
 
-A toolbox utiliza um sistema de **Registro Automático**. Para adicionar um novo componente, você não precisa alterar o código core; apenas decore sua classe.
+A toolbox utiliza um sistema de **Registro Automatico**. Para adicionar um novo componente, voce nao precisa alterar o codigo core; apenas decore sua classe.
 
 ### 1. Adicionando uma Nova Arquitetura (`archs/`)
 Crie um arquivo `base_tool/archs/meu_modelo.py`:
@@ -66,16 +66,16 @@ datasets:
 
 ---
 
-## 📂 Estrutura de Pastas
-- `base_tool/archs`: Definições de Redes Neurais.
-- `base_tool/models`: Lógica de treinamento (Forward/Backward).
+##  Estrutura de Pastas
+- `base_tool/archs`: Definicoes de Redes Neurais.
+- `base_tool/models`: Logica de treinamento (Forward/Backward).
 - `base_tool/data`: Datasets e Dataloaders.
-- `base_tool/visualization`: Geração automática de gráficos.
-- `base_tool/metrics`: Métricas de avaliação (MSE, MAE, F1, etc).
+- `base_tool/visualization`: Geracao automatica de graficos.
+- `base_tool/metrics`: Metricas de avaliacao (MSE, MAE, F1, etc).
 - `experiments/`: Resultados, logs e checkpoints (gerado automaticamente).
 
-## 📊 Visualização
-A toolbox gera automaticamente um payload de logs (losses, métricas e LR) e envia para os visualizadores registrados. Os gráficos são salvos em `experiments/[NOME]/visualization/`.
+##  Visualizacao
+A toolbox gera automaticamente um payload de logs (losses, metricas e LR) e envia para os visualizadores registrados. Os graficos sao salvos em `experiments/[NOME]/visualization/`.
 
 ---
-**BioEcoInt Lab** - *Engenharia de Software aplicada à Ciência.*
+**BioEcoInt Lab** - *Engenharia de Software aplicada a Ciencia.*
