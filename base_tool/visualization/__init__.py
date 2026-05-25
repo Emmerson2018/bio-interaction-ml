@@ -7,7 +7,7 @@ viz_folder = os.path.dirname(os.path.abspath(__file__))
 import_modules_from_directory(viz_folder, 'base_tool.visualization')
 
 def build_visualizer(opt):
-    """Constrói um visualizador."""
+    """Constroi um visualizador."""
     viz_type = opt['type']
     visualizer = VISUALIZATION_REGISTRY.get(viz_type)(opt)
     return visualizer

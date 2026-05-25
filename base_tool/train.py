@@ -11,7 +11,7 @@ from base_tool.metrics import build_metric
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, required=True, help='Caminho para o arquivo YAML de opções.')
+    parser.add_argument('-opt', type=str, required=True, help='Caminho para o arquivo YAML de opcoes.')
     args = parser.parse_args()
 
     # 1. Parse Options
@@ -33,11 +33,11 @@ def main():
         elif phase == 'val':
             val_set = build_dataset(dataset_opt)
             val_loader = build_dataloader(val_set, opt, phase='val')
-            logger.info(f"Dataset de validação [{val_set.__class__.__name__}] criado.")
+            logger.info(f"Dataset de validacao [{val_set.__class__.__name__}] criado.")
 
     # 4. Build Model
     model = build_model(opt)
-    logger.info(f"Modelo [{model.__class__.__name__}] construído.")
+    logger.info(f"Modelo [{model.__class__.__name__}] construido.")
 
     # 5. Build Visualizers
     visualizers = []
@@ -53,13 +53,13 @@ def main():
     if 'train' in opt and 'metrics' in opt['train']:
         for metric_name, metric_opt in opt['train']['metrics'].items():
             metrics[metric_name] = build_metric(metric_opt)
-            logger.info(f"Métrica [{metric_name}] adicionada.")
+            logger.info(f"Metrica [{metric_name}] adicionada.")
 
     # 7. Training Loop
     total_epochs = opt['train'].get('total_epochs', 100)
     current_iter = 0
     
-    logger.info(f"Iniciando treinamento por {total_epochs} épocas...")
+    logger.info(f"Iniciando treinamento por {total_epochs} epocas...")
     
     for epoch in range(total_epochs):
         model.optimizers[0].param_groups[0]['lr'] # Apenas check
@@ -70,7 +70,7 @@ def main():
             model.feed_data(data)
             model.optimize_parameters(current_iter)
             
-            # Log e Visualização (Treino)
+            # Log e Visualizacao (Treino)
             if current_iter % opt['logger'].get('print_freq', 100) == 0:
                 losses = model.get_current_losses()
                 lrs = model.get_current_learning_rate()
@@ -79,12 +79,12 @@ def main():
                 for idx, lr in enumerate(lrs):
                     viz_payload[f'lr_{idx}'] = lr
                 
-                logger.info(f"[Época {epoch}][Iter {current_iter}] Train Metrics: {viz_payload}")
+                logger.info(f"[Epoca {epoch}][Iter {current_iter}] Train Metrics: {viz_payload}")
                 
                 for viz in visualizers:
                     viz.visualize(current_iter, viz_payload)
 
-        # Validação no final da época
+        # Validacao no final da epoca
         if val_loader is not None and (epoch + 1) % opt['train'].get('val_freq', 1) == 0:
             metric_results = {name: 0 for name in metrics.keys()}
             num_val_batches = 0
@@ -98,13 +98,13 @@ def main():
                     metric_results[name] += metric_fn(visuals['prediction'], visuals['target'])
                 num_val_batches += 1
             
-            # Média das métricas
+            # Media das metricas
             for name in metric_results:
                 metric_results[name] /= num_val_batches
                 
-            logger.info(f"--- [Validação Época {epoch}] Métricas: {metric_results} ---")
+            logger.info(f"--- [Validacao Epoca {epoch}] Metricas: {metric_results} ---")
             
-            # Também enviar métricas de validação para os visualizadores
+            # Tambem enviar metricas de validacao para os visualizadores
             for viz in visualizers:
                 viz.visualize(current_iter, {f'val_{k}': v for k, v in metric_results.items()})
 
@@ -113,7 +113,7 @@ def main():
         if (epoch + 1) % opt['train'].get('save_checkpoint_freq', 10) == 0:
             model.save(epoch, current_iter)
 
-    logger.info("Treinamento concluído!")
+    logger.info("Treinamento concluido!")
 
 if __name__ == '__main__':
     main()

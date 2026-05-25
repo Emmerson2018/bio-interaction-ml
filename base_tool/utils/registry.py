@@ -1,7 +1,7 @@
 class Registry():
     """Sistema de registro para mapear strings para classes.
     
-    Inspirado no padrão utilizado em frameworks como BasicSR e MMCV.
+    Inspirado no padrao utilizado em frameworks como BasicSR e MMCV.
     """
     def __init__(self, name):
         self._name = name
@@ -9,7 +9,7 @@ class Registry():
 
     def _do_register(self, name, obj):
         if name in self._obj_map:
-            raise KeyError(f'{name} já está registrado em {self._name}')
+            raise KeyError(f'{name} ja esta registrado em {self._name}')
         self._obj_map[name] = obj
 
     def register(self, obj=None):
@@ -27,7 +27,7 @@ class Registry():
     def get(self, name):
         """Recupera um objeto pelo nome."""
         if name not in self._obj_map:
-            raise KeyError(f'{name} não encontrado em {self._name}')
+            raise KeyError(f'{name} nao encontrado em {self._name}')
         return self._obj_map[name]
 
     def __contains__(self, name):
@@ -36,7 +36,7 @@ class Registry():
     def __repr__(self):
         return f'Registry(name={self._name}, items={list(self._obj_map.keys())})'
 
-# Definição dos registros globais
+# Definicao dos registros globais
 ARCH_REGISTRY = Registry('ARCH')
 MODEL_REGISTRY = Registry('MODEL')
 DATASET_REGISTRY = Registry('DATASET')

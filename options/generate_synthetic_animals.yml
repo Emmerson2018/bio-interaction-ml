@@ -1,0 +1,17 @@
+name: synthetic_animals_capivara_sapo
+
+synthetic:
+  source_dir: assets/blender_models
+  output_dir: datasets/generated/animals_synthetic
+  renderer_backend: python_bpy
+  samples_per_model: 300
+  image_size: 224
+  seed: 20260524
+  render_engine: CYCLES
+  device: CUDA
+  camera_radius_min: 3.0
+  camera_radius_max: 5.5
+  splits:
+    train: 0.8
+    val: 0.1
+    test: 0.1

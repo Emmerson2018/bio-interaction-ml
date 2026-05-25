@@ -1,7 +1,7 @@
 import os
 
 def scandir(dir_path, suffix=None, recursive=False):
-    """Varre um diretório em busca de arquivos com um sufixo específico."""
+    """Varre um diretorio em busca de arquivos com um sufixo especifico."""
     for root, _, files in os.walk(dir_path):
         for file in files:
             if suffix is None or file.endswith(suffix):

@@ -59,7 +59,7 @@ class SimpleModel(BaseModel):
         self.net.train()
 
     def get_current_visuals(self):
-        """Retorna predição e target para cálculo de métricas."""
+        """Retorna predicao e target para calculo de metricas."""
         out_dict = OrderedDict()
         out_dict['prediction'] = self.output.detach().cpu()
         out_dict['target'] = self.y.detach().cpu()
