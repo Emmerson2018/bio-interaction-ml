@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader
 from base_tool.utils.registry import DATASET_REGISTRY
 from base_tool.utils.misc import import_modules_from_directory
@@ -13,6 +14,20 @@ def build_dataset(opt):
     dataset = DATASET_REGISTRY.get(dataset_type)(opt)
     return dataset
 
+
+def _seed_worker(worker_id):
+    seed = torch.initial_seed() % 2**32
+    try:
+        import numpy as np
+
+        np.random.seed(seed)
+    except ImportError:
+        pass
+    import random
+
+    random.seed(seed)
+
+
 def build_dataloader(dataset, opt, phase):
     """Constrói um dataloader."""
     if phase == 'train':
@@ -24,10 +39,20 @@ def build_dataloader(dataset, opt, phase):
         num_worker = 0
         shuffle = False
 
+    seed = opt.get('train', {}).get('seed')
+    generator = None
+    worker_init_fn = None
+    if seed is not None:
+        generator = torch.Generator()
+        generator.manual_seed(int(seed))
+        worker_init_fn = _seed_worker
+
     return DataLoader(
         dataset,
         batch_size=batch_size,
         shuffle=shuffle,
         num_workers=num_worker,
-        pin_memory=True
+        pin_memory=True,
+        generator=generator,
+        worker_init_fn=worker_init_fn,
     )

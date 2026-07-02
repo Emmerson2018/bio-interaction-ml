@@ -9,3 +9,5 @@ experiments/*
 !experiments/__init__.py
 # Virtual environments
 .venv
+uv.zip
+venv

@@ -21,6 +21,13 @@ packages = ["base_tool"]
 
 [project.scripts]
 base-train = "base_tool.train:main"
+base-recognize = "base_tool.infer:main"
+base-evaluate = "base_tool.evaluate:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.1.1",
+]
 
 [build-system]
 requires = ["hatchling"]
