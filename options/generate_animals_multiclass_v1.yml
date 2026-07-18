@@ -1,0 +1,72 @@
+name: animals_multiclass_v1
+
+source_root: asset/Blender
+output_root: datasets/generated/animals_multiclass_v1
+pilot_output_root: datasets/generated/animals_multiclass_v1_pilot
+smoke_output_root: datasets/generated/smoke_multiclass_v1
+diagnostics_output_root: datasets/generated/diagnostics_multiclass_v1
+reports_root: reports/multiclass_v1
+
+renderer_backend: python_bpy
+python_executable: .venv-render/Scripts/python.exe
+render_engine: BLENDER_EEVEE
+device: CPU
+
+seed: 42
+image_size: 224
+view_strategy: structured
+class_mapping_file: configs/class_mapping_multiclass_v1.yml
+angle_sweep_degrees: [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+
+render_options:
+  camera_radius: 4.0
+  pitch_degrees: 72
+  roll_degrees: 0
+  camera_lens: 55
+  light_energy: 700
+  scale: 1.0
+  vertical_offset: 0.0
+
+class_render_options:
+  boto_cor_de_rosa:
+    front_angle_degrees: 180
+    camera_radius_min: 2.2
+    camera_radius_max: 2.9
+    target_frame_occupancy_min: 0.40
+    target_frame_occupancy_max: 0.85
+    pose_ids: [neutral]
+    required_parts: [body, fins, tail]
+    optional_parts: []
+    interactive_objects: []
+  capivara:
+    front_angle_degrees: 180
+    camera_radius_min: 3.4
+    camera_radius_max: 4.4
+    target_frame_occupancy_min: 0.35
+    target_frame_occupancy_max: 0.80
+    pose_ids: [neutral]
+    required_parts: [body, head, legs]
+    optional_parts: []
+    interactive_objects: []
+  onca_pintada:
+    front_angle_degrees: 90
+    camera_radius_min: 3.4
+    camera_radius_max: 4.4
+    target_frame_occupancy_min: 0.30
+    target_frame_occupancy_max: 0.75
+    pose_ids: [neutral]
+    required_parts: [body, head, legs, tail]
+    optional_parts: []
+    interactive_objects: []
+  sapo_flecha:
+    front_angle_degrees: 0
+    camera_radius_min: 4.0
+    camera_radius_max: 5.2
+    target_frame_occupancy_min: 0.30
+    target_frame_occupancy_max: 0.75
+    scale: 0.8
+    vertical_offset: -0.25
+    pose_ids: [neutral]
+    required_parts: [body, head, legs, eyes]
+    optional_parts: []
+    interactive_objects: []

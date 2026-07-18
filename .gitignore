@@ -7,11 +7,14 @@ wheels/
 *.egg-info
 experiments/*
 !experiments/__init__.py
-assets/blender_models/*
-!assets/blender_models/.gitkeep
-!assets/blender_models/README.md
-datasets/generated/*
-!datasets/generated/.gitkeep
+asset/
+datasets/*
+!datasets/metadata/
+!datasets/metadata/*.csv
+reports/
 # Virtual environments
 .venv
-venv/
+.venv-*
+.matplotlib-cache/
+uv.zip
+venv

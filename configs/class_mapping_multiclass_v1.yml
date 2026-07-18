@@ -1,0 +1,5 @@
+class_mapping:
+  "Boto": boto_cor_de_rosa
+  "Capivara": capivara
+  "Onça": onca_pintada
+  "Sapo": sapo_flecha

@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from PIL import Image
-from torchvision import transforms
 
 from base_tool.data.base_dataset import BaseDataset
+from base_tool.data.preprocessing import build_image_transform, resolve_preprocessing
 from base_tool.utils.registry import DATASET_REGISTRY
 
 
@@ -15,12 +15,14 @@ class ImageFolderClassificationDataset(BaseDataset):
     def __init__(self, opt):
         super(ImageFolderClassificationDataset, self).__init__(opt)
         self.root = Path(opt['root'])
-        self.image_size = int(opt.get('image_size', 224))
         self.augment = bool(opt.get('augment', False))
+        preprocessing_opt = {'network_g': opt.get('network_g', {}), 'dataset': opt}
+        self.preprocessing = resolve_preprocessing(preprocessing_opt)
         self.classes = sorted([path.name for path in self.root.iterdir() if path.is_dir()])
         self.class_to_idx = {name: idx for idx, name in enumerate(self.classes)}
+        self.idx_to_class = {idx: name for name, idx in self.class_to_idx.items()}
         self.samples = self._load_samples()
-        self.transform = self._build_transform()
+        self.transform = build_image_transform(self.preprocessing, augment=self.augment)
 
         if not self.samples:
             raise FileNotFoundError(f'No images found in {self.root}')
@@ -34,21 +36,13 @@ class ImageFolderClassificationDataset(BaseDataset):
                     samples.append((path, self.class_to_idx[class_name]))
         return samples
 
-    def _build_transform(self):
-        transform_list = [
-            transforms.Resize((self.image_size, self.image_size)),
-        ]
-        if self.augment:
-            transform_list.extend([
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomRotation(degrees=12),
-                transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.15, hue=0.03),
-            ])
-        transform_list.extend([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-        return transforms.Compose(transform_list)
+    def get_metadata(self):
+        return {
+            'classes': list(self.classes),
+            'class_to_idx': dict(self.class_to_idx),
+            'idx_to_class': {str(idx): class_name for idx, class_name in self.idx_to_class.items()},
+            'preprocessing': dict(self.preprocessing),
+        }
 
     def __len__(self):
         return len(self.samples)

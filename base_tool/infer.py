@@ -5,9 +5,9 @@ from pathlib import Path
 import torch
 import yaml
 from PIL import Image
-from torchvision import transforms
 
 from base_tool.archs import build_network
+from base_tool.data.preprocessing import build_image_transform, resolve_preprocessing
 
 
 def _resolve_path(root_path, value):
@@ -17,19 +17,18 @@ def _resolve_path(root_path, value):
     return root_path / path
 
 
-def _load_class_names(class_index_path):
+def _load_class_names_from_csv(class_index_path):
     with class_index_path.open('r', newline='', encoding='utf-8') as csv_file:
         reader = csv.DictReader(csv_file)
         rows = sorted(reader, key=lambda row: int(row['class_index']))
         return [row['class_name'] for row in rows]
 
 
-def _build_transform(image_size):
-    return transforms.Compose([
-        transforms.Resize((image_size, image_size)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+def _class_names_from_checkpoint(checkpoint):
+    idx_to_class = checkpoint.get('idx_to_class') or checkpoint.get('dataset_metadata', {}).get('idx_to_class')
+    if not idx_to_class:
+        return None
+    return [idx_to_class[key] for key in sorted(idx_to_class, key=lambda value: int(value))]
 
 
 def main():
@@ -37,26 +36,28 @@ def main():
     parser.add_argument('-opt', required=True, help='Path to the training YAML used to build the model.')
     parser.add_argument('--checkpoint', required=True, help='Path to a .pth checkpoint.')
     parser.add_argument('--image', required=True, help='Path to the image to classify.')
-    parser.add_argument('--class-index', default=None, help='Path to class_index.csv.')
+    parser.add_argument('--class-index', default=None, help='Optional legacy path to class_index.csv.')
     args = parser.parse_args()
 
     root_path = Path(__file__).resolve().parents[1]
     with open(args.opt, mode='r', encoding='utf-8') as file:
         opt = yaml.load(file, Loader=yaml.FullLoader)
 
-    dataset_root = _resolve_path(root_path, opt['datasets']['train']['root']).parent
-    class_index_path = _resolve_path(root_path, args.class_index) if args.class_index else dataset_root / 'class_index.csv'
-    class_names = _load_class_names(class_index_path)
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     net = build_network(opt['network_g']).to(device)
     checkpoint = torch.load(_resolve_path(root_path, args.checkpoint), map_location=device)
     state_dict = checkpoint.get('network', checkpoint)
-    net.load_state_dict(state_dict)
+    net.load_state_dict(state_dict, strict=False)
     net.eval()
 
-    image_size = int(opt['datasets']['val'].get('image_size', opt['datasets']['train'].get('image_size', 224)))
-    transform = _build_transform(image_size)
+    class_names = _class_names_from_checkpoint(checkpoint)
+    if class_names is None:
+        dataset_root = _resolve_path(root_path, opt['datasets']['train']['root']).parent
+        class_index_path = _resolve_path(root_path, args.class_index) if args.class_index else dataset_root / 'class_index.csv'
+        class_names = _load_class_names_from_csv(class_index_path)
+
+    preprocessing = checkpoint.get('preprocessing') or resolve_preprocessing(opt)
+    transform = build_image_transform(preprocessing, augment=False)
     with Image.open(_resolve_path(root_path, args.image)) as image:
         tensor = transform(image.convert('RGB')).unsqueeze(0).to(device)
 

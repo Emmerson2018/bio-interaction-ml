@@ -8,7 +8,20 @@ class BaseModel(ABC):
     """
     def __init__(self, opt):
         self.opt = opt
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        runtime_opt = opt.get('runtime', {}) or {}
+        require_cuda = bool(runtime_opt.get('require_cuda', False))
+        if require_cuda and not torch.cuda.is_available():
+            raise RuntimeError('runtime.require_cuda=true, but torch.cuda.is_available() is false.')
+        if torch.cuda.is_available() and runtime_opt.get('device', 'cuda') == 'cuda':
+            cuda_device = int(runtime_opt.get('cuda_device', 0))
+            if cuda_device >= torch.cuda.device_count():
+                raise RuntimeError(f'Requested cuda:{cuda_device}, but only {torch.cuda.device_count()} CUDA device(s) are available.')
+            self.device = torch.device(f'cuda:{cuda_device}')
+            torch.cuda.set_device(self.device)
+        else:
+            if require_cuda:
+                raise RuntimeError('CUDA was required, but runtime.device is not cuda.')
+            self.device = torch.device('cpu')
         self.is_train = opt.get('is_train', True)
         self.schedulers = []
         self.optimizers = []

@@ -19,8 +19,16 @@ uv sync
 ### Executando um Experimento
 Tudo e controlado via arquivos YAML na pasta `options/`.
 
+Gerar imagens sintéticas a partir dos modelos Blender:
+
 ```bash
-uv run base-train -opt options/poc_mlp.yml
+uv run base-generate-blender-dataset -opt options/generate_animals_multiclass_v1.yml
+```
+
+Treinar o classificador principal, baseado em MobileNetV3 Small pré-treinada:
+
+```bash
+uv run base-train -opt options/multiclass_v1/e04_mobilenet_v3_small_imagenet.yml
 ```
 
 ---
@@ -78,4 +86,40 @@ datasets:
 A toolbox gera automaticamente um payload de logs (losses, metricas e LR) e envia para os visualizadores registrados. Os graficos sao salvos em `experiments/[NOME]/visualization/`.
 
 ---
-**BioEcoInt Lab** - *Engenharia de Software aplicada a Ciencia.*
+**BioEcoInt Lab** - *Engenharia de Software aplicada à Ciência.*
+# MVP recomendado: classificador por pastas
+
+O fluxo recomendado no momento para o subsistema de IA e um MVP simples de classificacao de imagens.
+Ele descobre as classes diretamente pelos nomes das subpastas, prepara imagens e videos, treina um unico classificador leve e gera os artefatos de avaliacao e exportacao.
+
+Estrutura esperada:
+
+```text
+datasets/generated/animals_multiclass_v1/
+  train/
+  val/
+  test/
+```
+
+Comando principal:
+
+```powershell
+.\.venv-train\Scripts\base-run-mvp-classifier.exe `
+  --input-root datasets\generated\animals_multiclass_v1 `
+  --output-root reports\mvp_classifier_synthetic `
+  --seed 42 `
+  --extract-video-fps 1
+```
+
+Saidas principais:
+
+- `reports/mvp_classifier/dataset_manifest.csv`
+- `reports/mvp_classifier/training_curves.png`
+- `reports/mvp_classifier/test_metrics.json`
+- `reports/mvp_classifier/per_class_metrics.csv`
+- `reports/mvp_classifier/confusion_matrix.png`
+- `reports/mvp_classifier/final_report.md`
+- `reports/mvp_classifier/mobile_export/labels.txt`
+- `reports/mvp_classifier/mobile_export/manifest.json`
+
+Neste MVP, o modelo treinado em `animals_multiclass_v1` e um classificador de classes conhecidas. O resultado `unknown` deve ser um fallback de inferencia: se a maior probabilidade ficar abaixo do corte definido pela validacao real, o aplicativo retorna `unknown` e exibe a mensagem de nao identificacao. O fluxo avancado de calibracao, FAR/FRR, datasets `calibration_known`/`test_unknown` e comparacao multi-arquitetura fica preservado como trabalho experimental/futuro, mas nao e dependencia do MVP.
