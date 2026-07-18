@@ -87,7 +87,17 @@ def _write_predictions(path, rows):
     with path.open('w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(
             csv_file,
-            fieldnames=['path', 'target', 'prediction', 'confidence', 'correct'],
+            fieldnames=[
+                'path',
+                'target',
+                'prediction',
+                'confidence',
+                'top2_prediction',
+                'top2_confidence',
+                'margin',
+                'correct',
+                'top2_correct',
+            ],
         )
         writer.writeheader()
         for row in rows:
@@ -167,6 +177,7 @@ def evaluate(opt_path, checkpoint_path, split):
     y_true = []
     y_pred = []
     confidences = []
+    top2_correct = 0
     prediction_rows = []
     with torch.no_grad():
         for image_path, target in samples:
@@ -174,9 +185,15 @@ def evaluate(opt_path, checkpoint_path, split):
                 tensor = transform(image.convert('RGB')).unsqueeze(0).to(device)
             logits = net(tensor)
             probabilities = torch.softmax(logits, dim=1)[0]
-            confidence, prediction = torch.max(probabilities, dim=0)
+            top_values, top_indices = torch.topk(probabilities, k=min(2, probabilities.numel()))
+            confidence = top_values[0]
+            prediction = top_indices[0]
             prediction_index = int(prediction.item())
             confidence_value = float(confidence.item())
+            second_index = int(top_indices[1].item()) if top_indices.numel() > 1 else prediction_index
+            second_confidence = float(top_values[1].item()) if top_values.numel() > 1 else 0.0
+            is_top2_correct = int(target) in [int(index.item()) for index in top_indices]
+            top2_correct += int(is_top2_correct)
             y_true.append(int(target))
             y_pred.append(prediction_index)
             confidences.append(confidence_value)
@@ -186,13 +203,18 @@ def evaluate(opt_path, checkpoint_path, split):
                     'target': idx_to_class[int(target)],
                     'prediction': idx_to_class[prediction_index],
                     'confidence': f'{confidence_value:.8f}',
+                    'top2_prediction': idx_to_class[second_index],
+                    'top2_confidence': f'{second_confidence:.8f}',
+                    'margin': f'{confidence_value - second_confidence:.8f}',
                     'correct': str(prediction_index == int(target)).lower(),
+                    'top2_correct': str(is_top2_correct).lower(),
                 }
             )
 
     metrics = _compute_metrics(y_true, y_pred, confidences, class_names)
     metrics['classes'] = class_names
     metrics['split'] = split
+    metrics['top2_accuracy'] = top2_correct / len(samples) if samples else 0.0
 
     evaluation_dir = _resolve_path(root_path, opt['path']['experiments_root']) / 'evaluation'
     evaluation_dir.mkdir(parents=True, exist_ok=True)

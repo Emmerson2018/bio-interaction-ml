@@ -1,5 +1,6 @@
 import os
 from collections import OrderedDict
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -45,9 +46,42 @@ class ClassificationModel(BaseModel):
         super(ClassificationModel, self).__init__(opt)
         self.net = build_network(opt['network_g']).to(self.device)
         self.dataset_metadata = {}
+        self._load_pretrained_network()
+        runtime_opt = opt.get('runtime', {}) or {}
+        self.mixed_precision = bool(runtime_opt.get('mixed_precision', False)) and self.device.type == 'cuda'
+        self.scaler = torch.amp.GradScaler('cuda', enabled=self.mixed_precision)
 
         if self.is_train:
             self.init_training_settings()
+
+    def _resolve_path(self, path):
+        candidate = Path(path)
+        if candidate.is_absolute():
+            return candidate
+        return Path(self.opt.get('path', {}).get('root', Path.cwd())) / candidate
+
+    def _load_pretrained_network(self):
+        pretrained_path = self.opt.get('network_g', {}).get('pretrained_checkpoint')
+        if not pretrained_path:
+            return
+        checkpoint = torch.load(self._resolve_path(pretrained_path), map_location=self.device)
+        source_state = checkpoint.get('network', checkpoint) if isinstance(checkpoint, dict) else checkpoint
+        target_state = self.net.state_dict()
+        compatible_state = {}
+        skipped = []
+        for key, value in source_state.items():
+            if key in target_state and target_state[key].shape == value.shape:
+                compatible_state[key] = value
+            else:
+                skipped.append(key)
+        missing, unexpected = self.net.load_state_dict(compatible_state, strict=False)
+        self.pretrained_load_report = {
+            'path': str(pretrained_path),
+            'loaded_keys': len(compatible_state),
+            'skipped_keys': skipped,
+            'missing_keys': list(missing),
+            'unexpected_keys': list(unexpected),
+        }
 
     def init_training_settings(self):
         self.net.train()
@@ -72,10 +106,16 @@ class ClassificationModel(BaseModel):
 
     def optimize_parameters(self, current_iter):
         self.optimizer_g.zero_grad()
-        self.output = self.net(self.x)
-        loss = self.criterion(self.output, self.y)
-        loss.backward()
-        self.optimizer_g.step()
+        with torch.amp.autocast('cuda', enabled=self.mixed_precision):
+            self.output = self.net(self.x)
+            loss = self.criterion(self.output, self.y)
+        if self.mixed_precision:
+            self.scaler.scale(loss).backward()
+            self.scaler.step(self.optimizer_g)
+            self.scaler.update()
+        else:
+            loss.backward()
+            self.optimizer_g.step()
 
         predictions = torch.argmax(self.output, dim=1)
         accuracy = (predictions == self.y).float().mean()
@@ -114,6 +154,11 @@ class ClassificationModel(BaseModel):
                 'name': self.opt.get('name'),
                 'seed': self.opt.get('train', {}).get('seed'),
                 'deterministic': self.opt.get('train', {}).get('deterministic', False),
+                'runtime': dict(self.opt.get('runtime', {}) or {}),
+                'device': str(self.device),
+                'mixed_precision': self.mixed_precision,
+                'peak_vram_mb': round(torch.cuda.max_memory_allocated(self.device) / 1024 / 1024, 3)
+                if self.device.type == 'cuda' else 0.0,
             },
         }
 

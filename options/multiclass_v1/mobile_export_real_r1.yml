@@ -1,0 +1,13 @@
+model_version: 1.0.0-real-r1
+checkpoint: experiments/E04_MobileNetV3_Small_Finetune_Real_R1/models/best.pth
+test_root: datasets/finetune_multiclass_v1_r1/test
+app_content_db: ../ecologia_interativa/assets/content/animais.json
+output_root: reports/multiclass_v1/mobile_export_real_r1
+
+id_aliases:
+  sapo: sapo_flecha
+
+acceptance:
+  confidence_threshold: 0.80
+  entropy_threshold: 0.15
+  required_consistent_frames: 2

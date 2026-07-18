@@ -13,6 +13,10 @@ dependencies = [
     "matplotlib>=3.10.9",
     "seaborn>=0.13.2",
     "scikit-learn>=1.8.0",
+    "opencv-python-headless>=5.0.0.93",
+    "onnx>=1.22.0",
+    "onnxscript>=0.7.1",
+    "onnxruntime>=1.27.0",
 ]
 requires-python = ">=3.11"
 
@@ -23,10 +27,39 @@ packages = ["base_tool"]
 base-train = "base_tool.train:main"
 base-recognize = "base_tool.infer:main"
 base-evaluate = "base_tool.evaluate:main"
+base-calibrate-rejection = "base_tool.calibrate_rejection:main"
+base-validate-real-metadata = "base_tool.real_data.validate_metadata:main"
+base-build-real-dataset = "base_tool.real_data.build_dataset:main"
+base-extract-real-frames = "base_tool.real_data.extract_frames:main"
+base-run-mvp-classifier = "base_tool.mvp_classifier:main"
+base-generate-blender-dataset = "base_tool.synthetic.generate_blender_dataset:main"
+base-audit-dataset = "base_tool.synthetic.audit_dataset:main"
+base-export-mobile = "base_tool.export_mobile:main"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=9.1.1",
+]
+mobile = [
+    "tensorflow>=2.21.0,<2.22",
+    "tf-keras>=2.21.0,<2.22",
+    "onnx2tf>=1.28.8",
+    "onnx-graphsurgeon>=0.6.1",
+    "ai-edge-litert>=2.1.6",
+    "sng4onnx>=2.0.1",
+    "psutil>=7.2.2",
+]
+synthetic = [
+    "bpy>=5.0.1,<5.1",
+    "pillow>=12.0.0",
+    "pyyaml>=6.0.3",
+    "zstandard>=0.25.0",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "blender: tests that require Blender or bpy",
+    "gpu: tests that require a CUDA GPU",
 ]
 
 [build-system]

@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 
 import torch
 
@@ -63,12 +64,28 @@ def _class_names_from_metadata(metadata):
     return []
 
 
+def _validate_num_classes(opt, train_metadata):
+    classes = _class_names_from_metadata(train_metadata)
+    if not classes:
+        return
+    configured = opt.get('network_g', {}).get('num_classes')
+    if configured is None:
+        opt.setdefault('network_g', {})['num_classes'] = len(classes)
+        return
+    if int(configured) != len(classes):
+        raise ValueError(
+            f"network_g.num_classes={configured} diverges from dataset classes={len(classes)}: {classes}"
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-opt', type=str, required=True, help='Caminho para o arquivo YAML de opcoes.')
     args = parser.parse_args()
 
     opt = parse_options(args.opt, is_train=True)
+    if 'num_epochs' in opt.get('train', {}) and 'total_epochs' not in opt.get('train', {}):
+        opt['train']['total_epochs'] = opt['train']['num_epochs']
     set_random_seed(
         opt.get('train', {}).get('seed'),
         deterministic=opt.get('train', {}).get('deterministic', False),
@@ -97,7 +114,13 @@ def main():
             val_loader = build_dataloader(val_set, opt, phase='val')
             logger.info(f"Dataset de validacao [{val_set.__class__.__name__}] criado.")
 
+    _validate_num_classes(opt, train_metadata)
     model = build_model(opt)
+    if opt.get('runtime', {}).get('require_cuda') and model.device.type != 'cuda':
+        raise RuntimeError(f'CUDA was required, but effective model device is {model.device}.')
+    if model.device.type == 'cuda':
+        logger.info(f"Dispositivo efetivo: {model.device} | GPU: {torch.cuda.get_device_name(model.device)}")
+        torch.cuda.reset_peak_memory_stats(model.device)
     if hasattr(model, 'set_dataset_metadata'):
         model.set_dataset_metadata(train_metadata)
     logger.info(f"Modelo [{model.__class__.__name__}] construido.")
@@ -130,6 +153,7 @@ def main():
     epochs_without_improvement = 0
 
     logger.info(f"Iniciando treinamento por {total_epochs} epocas...")
+    train_started_at = time.perf_counter()
 
     for epoch in range(total_epochs):
         if hasattr(model, 'on_epoch_start'):
@@ -212,6 +236,11 @@ def main():
             logger.info(f"Early stopping acionado na epoca {epoch}.")
             break
 
+    elapsed_seconds = time.perf_counter() - train_started_at
+    if getattr(model, 'device', torch.device('cpu')).type == 'cuda':
+        peak_vram_mb = torch.cuda.max_memory_allocated(model.device) / 1024 / 1024
+        logger.info(f'Peak VRAM MB: {peak_vram_mb:.3f}')
+    logger.info(f'Train time seconds: {elapsed_seconds:.3f}')
     logger.info('Treinamento concluido!')
 
 

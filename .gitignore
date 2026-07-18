@@ -7,7 +7,14 @@ wheels/
 *.egg-info
 experiments/*
 !experiments/__init__.py
+asset/
+datasets/*
+!datasets/metadata/
+!datasets/metadata/*.csv
+reports/
 # Virtual environments
 .venv
+.venv-*
+.matplotlib-cache/
 uv.zip
 venv
