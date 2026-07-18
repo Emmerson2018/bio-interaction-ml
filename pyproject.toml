@@ -1,9 +1,9 @@
 [project]
 name = "base-tool-ml"
 version = "0.1.0"
-description = "Toolbox de Machine Learning para projetos do IFMaker Lab baseada em Registry Pattern e Configuração Declarativa."
+description = "Toolbox de Machine Learning para projetos do IFMaker Lab baseada em Registry Pattern e Configuracao Declarativa."
 authors = [
-    { name = "Sérgio Augusto Jr", email = "sergioaugusto.bezerra.jr@gmail.com" }
+    { name = "Sergio Augusto Jr", email = "sergioaugusto.bezerra.jr@gmail.com" }
 ]
 dependencies = [
     "torch>=2.11.0",
