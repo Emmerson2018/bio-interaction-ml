@@ -1,0 +1,22 @@
+name: test_synthetic
+synthetic:
+  source_dir: assets/blender_models
+  output_dir: datasets/generated/test_synthetic
+  renderer_backend: python_bpy
+  samples_per_model: 10
+  image_size: 224
+  seed: 2026
+  render_engine: CYCLES
+  device: CPU
+  psychedelic_bg_prob: 1.0
+  light_count_min: 1
+  light_count_max: 5
+  occlusion_prob: 1.0
+  occlusion_count_max: 3
+  occlusion_coverage_max: 0.6
+  noise_prob: 1.0
+  noise_types: ['gaussian', 'salt_pepper', 'jpeg', 'white']
+  noise_intensity_min: 0.01
+  noise_intensity_max: 0.25
+  splits:
+    train: 1.0

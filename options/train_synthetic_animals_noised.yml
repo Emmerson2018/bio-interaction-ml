@@ -1,0 +1,50 @@
+name: Synthetic_Animals_Classifier_Noised
+model_type: ClassificationModel
+num_gpu: 1
+
+datasets:
+  train:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_synthetic_noised/train
+    image_size: 224
+    augment: true
+    batch_size_per_gpu: 32
+    num_worker_per_gpu: 4
+  val:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_synthetic_noised/val
+    image_size: 224
+    augment: false
+
+network_g:
+  type: TorchvisionClassifier
+  architecture: resnet18
+  num_classes: 8
+  weights: DEFAULT
+  freeze_backbone: false
+
+train:
+  lr_g: !!float 3e-4
+  weight_decay: !!float 1e-2
+  total_epochs: 10
+  save_checkpoint_freq: 5
+  val_freq: 1
+  scheduler_step_size: 8
+  scheduler_gamma: 0.2
+  metrics:
+    accuracy:
+      type: AccuracyMetric
+
+logger:
+  print_freq: 10
+  save_checkpoint_freq: 5
+
+visualization:
+  training_plots:
+    type: LossVisualizer
+  per_class_f1:
+    type: PerClassMetricsVisualizer
+  confidence_box:
+    type: ConfidenceBoxplotVisualizer
+  confusion_matrix:
+    type: ConfusionMatrixVisualizer

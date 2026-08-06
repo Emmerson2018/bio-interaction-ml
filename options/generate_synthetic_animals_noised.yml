@@ -1,8 +1,8 @@
-name: synthetic_animals_capivara_sapo
+name: synthetic_animals_noised
 
 synthetic:
   source_dir: assets/blender_models
-  output_dir: datasets/generated/animals_synthetic
+  output_dir: datasets/generated/animals_synthetic_noised
   renderer_backend: python_bpy
   samples_per_model: 1500
   image_size: 224
@@ -11,16 +11,16 @@ synthetic:
   device: CUDA
   camera_radius_min: 3.0
   camera_radius_max: 5.5
-  psychedelic_bg_prob: 0.5
+  psychedelic_bg_prob: 0.6
   light_count_min: 1
   light_count_max: 5
   occlusion_prob: 0.6
   occlusion_count_max: 3
-  occlusion_coverage_max: 0.4
-  noise_prob: 0.7
+  occlusion_coverage_max: 0.5
+  noise_prob: 0.6
   noise_types: ['gaussian', 'salt_pepper', 'jpeg', 'white']
-  noise_intensity_min: 0.05
-  noise_intensity_max: 0.3
+  noise_intensity_min: 0.01
+  noise_intensity_max: 0.1
   splits:
     train: 0.8
     val: 0.1

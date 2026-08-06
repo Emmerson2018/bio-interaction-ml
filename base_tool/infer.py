@@ -24,9 +24,17 @@ def _load_class_names(class_index_path):
         return [row['class_name'] for row in rows]
 
 
+class EdgeExtraction:
+    def __call__(self, img):
+        from PIL import ImageFilter
+        return img.filter(ImageFilter.FIND_EDGES)
+
 def _build_transform(image_size):
     return transforms.Compose([
         transforms.Resize((image_size, image_size)),
+        transforms.Grayscale(num_output_channels=3),
+        transforms.GaussianBlur(kernel_size=9, sigma=3.5),
+        EdgeExtraction(),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])

@@ -89,11 +89,17 @@ def main():
             metric_results = {name: 0 for name in metrics.keys()}
             num_val_batches = 0
             
+            all_val_probabilities = []
+            all_val_targets = []
+            
             for val_data in val_loader:
                 model.feed_data(val_data)
                 model.test()
                 
                 visuals = model.get_current_visuals()
+                all_val_probabilities.append(visuals['probabilities'])
+                all_val_targets.append(visuals['target'])
+                
                 for name, metric_fn in metrics.items():
                     metric_results[name] += metric_fn(visuals['prediction'], visuals['target'])
                 num_val_batches += 1
@@ -105,8 +111,17 @@ def main():
             logger.info(f"--- [Validacao Epoca {epoch}] Metricas: {metric_results} ---")
             
             # Tambem enviar metricas de validacao para os visualizadores
+            val_viz_payload = {f'val_{k}': v for k, v in metric_results.items()}
+            if len(all_val_probabilities) > 0:
+                val_viz_payload['val_probabilities'] = torch.cat(all_val_probabilities, dim=0)
+                val_viz_payload['val_targets'] = torch.cat(all_val_targets, dim=0)
+            val_viz_payload['epoch'] = epoch
+            val_viz_payload['total_epochs'] = total_epochs
+            if hasattr(val_loader.dataset, 'classes'):
+                val_viz_payload['classes'] = val_loader.dataset.classes
+                
             for viz in visualizers:
-                viz.visualize(current_iter, {f'val_{k}': v for k, v in metric_results.items()})
+                viz.visualize(current_iter, val_viz_payload)
 
         model.update_learning_rate(current_iter)
         

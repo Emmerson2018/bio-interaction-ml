@@ -13,9 +13,10 @@ class LossVisualizer(BaseVisualizer):
     def visualize(self, current_iter, log_dict):
         # log_dict pode conter {'loss_G': 0.1, 'loss_D': 0.2, 'acc': 0.9}
         for key, value in log_dict.items():
-            if key not in self.histories:
-                self.histories[key] = []
-            self.histories[key].append((current_iter, value))
+            if isinstance(value, (int, float)):
+                if key not in self.histories:
+                    self.histories[key] = []
+                self.histories[key].append((current_iter, value))
         
         # Gera um plot com multiplas curvas
         plt.figure(figsize=(10, 5))

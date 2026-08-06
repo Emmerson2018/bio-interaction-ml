@@ -106,6 +106,17 @@ def main():
     camera_radius_max = float(synthetic_opt.get('camera_radius_max', 5.5))
     render_engine = synthetic_opt.get('render_engine', 'CYCLES')
     device = synthetic_opt.get('device', 'CUDA')
+    
+    psychedelic_bg_prob = float(synthetic_opt.get('psychedelic_bg_prob', 0.0))
+    light_count_min = int(synthetic_opt.get('light_count_min', 2))
+    light_count_max = int(synthetic_opt.get('light_count_max', 2))
+    occlusion_prob = float(synthetic_opt.get('occlusion_prob', 0.0))
+    occlusion_count_max = int(synthetic_opt.get('occlusion_count_max', 0))
+    occlusion_coverage_max = float(synthetic_opt.get('occlusion_coverage_max', 0.0))
+    noise_prob = float(synthetic_opt.get('noise_prob', 0.0))
+    noise_types = synthetic_opt.get('noise_types', [])
+    noise_intensity_min = float(synthetic_opt.get('noise_intensity_min', 0.0))
+    noise_intensity_max = float(synthetic_opt.get('noise_intensity_max', 0.0))
 
     render_script = Path(__file__).with_name('render_blender_model.py')
     model_files = _find_model_files(source_dir)
@@ -139,7 +150,18 @@ def main():
                 '--camera-radius-max', str(camera_radius_max),
                 '--render-engine', render_engine,
                 '--device', device,
+                '--psychedelic-bg-prob', str(psychedelic_bg_prob),
+                '--light-count-min', str(light_count_min),
+                '--light-count-max', str(light_count_max),
+                '--occlusion-prob', str(occlusion_prob),
+                '--occlusion-count-max', str(occlusion_count_max),
+                '--occlusion-coverage-max', str(occlusion_coverage_max),
+                '--noise-prob', str(noise_prob),
+                '--noise-intensity-min', str(noise_intensity_min),
+                '--noise-intensity-max', str(noise_intensity_max),
             ]
+            if noise_types:
+                render_args.extend(['--noise-types', ','.join(noise_types)])
             if render_options:
                 render_args.extend([
                     '--view-strategy', render_options.get('view_strategy', 'random_360'),

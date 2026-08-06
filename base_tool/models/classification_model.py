@@ -62,6 +62,7 @@ class ClassificationModel(BaseModel):
     def get_current_visuals(self):
         out_dict = OrderedDict()
         out_dict['prediction'] = self.output.detach().cpu()
+        out_dict['probabilities'] = torch.softmax(self.output, dim=1).detach().cpu()
         out_dict['target'] = self.y.detach().cpu()
         return out_dict
 

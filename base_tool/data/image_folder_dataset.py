@@ -10,6 +10,11 @@ from base_tool.utils.registry import DATASET_REGISTRY
 IMG_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.webp'}
 
 
+class EdgeExtraction:
+    def __call__(self, img):
+        from PIL import ImageFilter
+        return img.filter(ImageFilter.FIND_EDGES)
+
 @DATASET_REGISTRY.register()
 class ImageFolderClassificationDataset(BaseDataset):
     def __init__(self, opt):
@@ -37,17 +42,20 @@ class ImageFolderClassificationDataset(BaseDataset):
     def _build_transform(self):
         transform_list = [
             transforms.Resize((self.image_size, self.image_size)),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.GaussianBlur(kernel_size=9, sigma=3.5),
+            EdgeExtraction(),
         ]
         if self.augment:
             transform_list.extend([
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.RandomRotation(degrees=12),
-                transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.15, hue=0.03),
             ])
         transform_list.extend([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
+            
         return transforms.Compose(transform_list)
 
     def __len__(self):
