@@ -30,7 +30,7 @@ train:
   lr_g: !!float 1e-4
   weight_decay: !!float 1e-2
   label_smoothing: 0.1
-  total_epochs: 15
+  total_epochs: 5
   save_checkpoint_freq: 5
   val_freq: 1
   scheduler_step_size: 5
