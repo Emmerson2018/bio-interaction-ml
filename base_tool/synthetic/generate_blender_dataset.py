@@ -145,7 +145,7 @@ def main():
                 '--samples', str(count),
                 '--start-index', str(start_index),
                 '--image-size', str(image_size),
-                '--seed', str(seed + model_index + start_index),
+                '--seed', str(seed + (model_index * 10000000) + {'train': 0, 'val': 1000000, 'test': 2000000}.get(split_name, 0) + start_index),
                 '--camera-radius-min', str(camera_radius_min),
                 '--camera-radius-max', str(camera_radius_max),
                 '--render-engine', render_engine,

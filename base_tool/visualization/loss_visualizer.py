@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 from base_tool.visualization.base_visualizer import BaseVisualizer

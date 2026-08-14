@@ -20,7 +20,8 @@ class ClassificationModel(BaseModel):
 
     def init_training_settings(self):
         self.net.train()
-        self.criterion = nn.CrossEntropyLoss().to(self.device)
+        label_smoothing = float(self.opt['train'].get('label_smoothing', 0.0))
+        self.criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing).to(self.device)
         optim_params = [param for param in self.net.parameters() if param.requires_grad]
         self.optimizer_g = torch.optim.AdamW(
             optim_params,

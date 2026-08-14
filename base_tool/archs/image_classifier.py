@@ -6,31 +6,33 @@ from base_tool.utils.registry import ARCH_REGISTRY
 
 @ARCH_REGISTRY.register()
 class TorchvisionClassifier(nn.Module):
-    def __init__(self, architecture='resnet18', num_classes=2, weights=None, freeze_backbone=False):
+    def __init__(self, architecture='resnet18', num_classes=2, weights=None, freeze_backbone=False, dropout=0.0):
         super(TorchvisionClassifier, self).__init__()
         self.model = models.get_model(architecture, weights=weights)
-        self._replace_classifier(num_classes)
+        self._replace_classifier(num_classes, dropout=float(dropout))
 
         if freeze_backbone:
             self._freeze_backbone()
 
-    def _replace_classifier(self, num_classes):
+    def _replace_classifier(self, num_classes, dropout=0.0):
+        head = lambda in_f: nn.Sequential(nn.Dropout(p=dropout), nn.Linear(in_f, num_classes)) if dropout > 0 else nn.Linear(in_f, num_classes)
+
         if hasattr(self.model, 'fc') and isinstance(self.model.fc, nn.Linear):
             in_features = self.model.fc.in_features
-            self.model.fc = nn.Linear(in_features, num_classes)
+            self.model.fc = head(in_features)
             return
 
         if hasattr(self.model, 'classifier'):
             classifier = self.model.classifier
             if isinstance(classifier, nn.Linear):
                 in_features = classifier.in_features
-                self.model.classifier = nn.Linear(in_features, num_classes)
+                self.model.classifier = head(in_features)
                 return
             if isinstance(classifier, nn.Sequential):
                 for idx in range(len(classifier) - 1, -1, -1):
                     if isinstance(classifier[idx], nn.Linear):
                         in_features = classifier[idx].in_features
-                        classifier[idx] = nn.Linear(in_features, num_classes)
+                        classifier[idx] = head(in_features)
                         return
 
         raise ValueError('Unsupported torchvision architecture classifier head.')

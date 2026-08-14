@@ -10,11 +10,6 @@ from base_tool.utils.registry import DATASET_REGISTRY
 IMG_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.webp'}
 
 
-class EdgeExtraction:
-    def __call__(self, img):
-        from PIL import ImageFilter
-        return img.filter(ImageFilter.FIND_EDGES)
-
 @DATASET_REGISTRY.register()
 class ImageFolderClassificationDataset(BaseDataset):
     def __init__(self, opt):
@@ -40,21 +35,29 @@ class ImageFolderClassificationDataset(BaseDataset):
         return samples
 
     def _build_transform(self):
+        use_grayscale = bool(self.opt.get('grayscale', False))
         transform_list = [
             transforms.Resize((self.image_size, self.image_size)),
-            transforms.Grayscale(num_output_channels=3),
-            transforms.GaussianBlur(kernel_size=9, sigma=3.5),
-            EdgeExtraction(),
         ]
+        if use_grayscale:
+            transform_list.append(transforms.Grayscale(num_output_channels=3))
+
         if self.augment:
             transform_list.extend([
                 transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomRotation(degrees=12),
+                transforms.RandomRotation(degrees=20),
+                transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
+                transforms.RandomAffine(degrees=0, translate=(0.08, 0.08), scale=(0.9, 1.1), shear=10),
             ])
         transform_list.extend([
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
+        if self.augment:
+            transform_list.append(transforms.RandomErasing(p=0.3, scale=(0.02, 0.2)))
+
+        transform_list.append(
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        )
             
         return transforms.Compose(transform_list)
 

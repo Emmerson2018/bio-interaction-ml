@@ -1,0 +1,54 @@
+name: Video_Animals_Classifier_ConvNeXtTiny
+model_type: ClassificationModel
+num_gpu: 1
+
+datasets:
+  train:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video/train
+    image_size: 224
+    grayscale: false
+    augment: true
+    batch_size_per_gpu: 32
+    num_worker_per_gpu: 4
+  val:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video/val
+    image_size: 224
+    grayscale: false
+    augment: false
+
+network_g:
+  type: TorchvisionClassifier
+  architecture: convnext_tiny
+  num_classes: 6
+  weights: DEFAULT
+  freeze_backbone: false
+  dropout: 0.3
+
+train:
+  lr_g: !!float 1e-4
+  weight_decay: !!float 1e-2
+  label_smoothing: 0.1
+  total_epochs: 15
+  save_checkpoint_freq: 5
+  val_freq: 1
+  scheduler_step_size: 5
+  scheduler_gamma: 0.5
+  metrics:
+    accuracy:
+      type: AccuracyMetric
+
+logger:
+  print_freq: 10
+  save_checkpoint_freq: 5
+
+visualization:
+  training_plots:
+    type: LossVisualizer
+  per_class_f1:
+    type: PerClassMetricsVisualizer
+  confidence_box:
+    type: ConfidenceBoxplotVisualizer
+  confusion_matrix:
+    type: ConfusionMatrixVisualizer

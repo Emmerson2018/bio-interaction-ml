@@ -16,6 +16,7 @@ dependencies = [
     "pillow>=10.0.0",
     "numpy>=1.26.0",
     "pandas>=2.0.0",
+    "opencv-python>=4.11.0.86",
 ]
 requires-python = ">=3.11"
 
@@ -25,6 +26,7 @@ packages = ["base_tool"]
 [project.scripts]
 base-train = "base_tool.train:main"
 base-generate-blender-dataset = "base_tool.synthetic.generate_blender_dataset:main"
+base-generate-video-dataset = "base_tool.synthetic.generate_video_dataset:main"
 base-recognize = "base_tool.infer:main"
 
 [project.optional-dependencies]

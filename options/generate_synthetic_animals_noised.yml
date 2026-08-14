@@ -4,7 +4,7 @@ synthetic:
   source_dir: assets/blender_models
   output_dir: datasets/generated/animals_synthetic_noised
   renderer_backend: python_bpy
-  samples_per_model: 1500
+  samples_per_model: 300
   image_size: 224
   seed: 20260524
   render_engine: CYCLES
@@ -13,14 +13,14 @@ synthetic:
   camera_radius_max: 5.5
   psychedelic_bg_prob: 0.6
   light_count_min: 1
-  light_count_max: 5
+  light_count_max: 3
   occlusion_prob: 0.6
   occlusion_count_max: 3
-  occlusion_coverage_max: 0.5
-  noise_prob: 0.6
+  occlusion_coverage_max: 0.3
+  noise_prob: 0.4
   noise_types: ['gaussian', 'salt_pepper', 'jpeg', 'white']
-  noise_intensity_min: 0.01
-  noise_intensity_max: 0.1
+  noise_intensity_min: 0.005
+  noise_intensity_max: 0.05
   splits:
     train: 0.8
     val: 0.1

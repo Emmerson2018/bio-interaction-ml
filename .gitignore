@@ -10,6 +10,9 @@ experiments/*
 assets/blender_models/*
 !assets/blender_models/.gitkeep
 !assets/blender_models/README.md
+assets/videos/*
+!assets/videos/.gitkeep
+!assets/videos/README.md
 datasets/generated/*
 !datasets/generated/.gitkeep
 # Virtual environments

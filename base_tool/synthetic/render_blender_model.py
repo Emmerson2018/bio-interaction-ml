@@ -438,7 +438,6 @@ def _render_sample(
 
 def main():
     args = _parse_args()
-    rng = random.Random(args.seed)
     model_path = Path(args.model_path).resolve()
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -452,6 +451,7 @@ def main():
 
     for offset in range(args.samples):
         image_index = args.start_index + offset
+        rng = random.Random(args.seed + image_index)
         output_path = output_dir / f'{args.class_name}_{args.split}_{image_index:06d}.png'
         _render_sample(
             output_path,

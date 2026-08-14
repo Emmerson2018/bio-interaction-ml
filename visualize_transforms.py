@@ -20,21 +20,8 @@ def main():
     gray_transform = transforms.Grayscale(num_output_channels=3)
     grayscale = gray_transform(resized)
     
-    # 4. Blur Gaussiano (Removendo ruídos antes das bordas)
-    blur_transform = transforms.GaussianBlur(kernel_size=9, sigma=3.5)
-    blurred = blur_transform(grayscale)
-    
-    # 5. Extração de Bordas
-    from PIL import ImageFilter
-    class EdgeExtraction:
-        def __call__(self, img):
-            return img.filter(ImageFilter.FIND_EDGES)
-            
-    edge_transform = EdgeExtraction()
-    edges = edge_transform(blurred)
-    
     # --- Plotando o Grid ---
-    fig, axes = plt.subplots(1, 5, figsize=(20, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     
     axes[0].imshow(original)
     axes[0].set_title('1. Original')
@@ -47,14 +34,6 @@ def main():
     axes[2].imshow(grayscale)
     axes[2].set_title('3. Grayscale')
     axes[2].axis('off')
-    
-    axes[3].imshow(blurred)
-    axes[3].set_title('4. Gaussian Blur')
-    axes[3].axis('off')
-    
-    axes[4].imshow(edges)
-    axes[4].set_title('5. Edge Extraction')
-    axes[4].axis('off')
     
     plt.tight_layout()
     plt.savefig(args.output)
