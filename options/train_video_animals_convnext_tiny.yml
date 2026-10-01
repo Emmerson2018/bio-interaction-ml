@@ -17,20 +17,26 @@ datasets:
     image_size: 224
     grayscale: false
     augment: false
+  test:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video/test
+    image_size: 224
+    grayscale: false
+    augment: false
 
 network_g:
   type: TorchvisionClassifier
   architecture: convnext_tiny
-  num_classes: 6
+  num_classes: 13
   weights: DEFAULT
   freeze_backbone: false
   dropout: 0.3
 
 train:
-  lr_g: !!float 1e-4
+  lr_g: !!float 1e-7
   weight_decay: !!float 1e-2
   label_smoothing: 0.1
-  total_epochs: 5
+  total_epochs: 15
   save_checkpoint_freq: 5
   val_freq: 1
   scheduler_step_size: 5
