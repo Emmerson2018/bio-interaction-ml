@@ -25,6 +25,57 @@ uv run base-train -opt options/poc_mlp.yml
 
 ---
 
+## 📦 Compartilhamento de Dados e Modelos (DVC + Google Drive)
+
+Para manter o repositório Git leve e reprodutível, os artefatos pesados (pesos de redes `.pth`, modelos exportados `.onnx`/`.tflite` e datasets brutos/vídeos) são versionados pelo **DVC** e armazenados diretamente em uma pasta compartilhada do **Google Drive**.
+
+Os relatórios de métricas (`classification_report.txt`, `test_summary.json`) e gráficos comparativos (`confusion_matrix.png`) continuam salvos diretamente no **Git** para acompanhamento dos resultados da equipe.
+
+### 1. Configuração Inicial para Novos Membros da Equipe
+
+Após clonar o repositório e rodar `uv sync`, configure o segredo de acesso do OAuth Client do laboratório no seu ambiente local:
+
+```bash
+# Configure o segredo localmente (esse comando salva em .dvc/config.local, que NÃO vai pro Git)
+uv run dvc remote modify --local gdrive-storage gdrive_client_secret "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"
+```
+
+> **Atenção (Usuários de Teste)**:
+> Como o aplicativo OAuth está registrado no Google Cloud em modo de teste com conta pessoal, o administrador do projeto (`sergioaugusto.bezerra.jr@gmail.com`) precisa adicionar o seu e-mail Google na lista de **Test Users** do Google Cloud Console antes da sua primeira autenticação.
+
+### 2. Baixando os Dados e Modelos do Projeto
+
+Para baixar os arquivos pesados de experimentos e datasets que já estão no Drive:
+
+```bash
+uv run dvc pull
+```
+
+*Na primeira vez em que você rodar esse comando, uma aba do navegador será aberta automaticamente solicitando que você faça login com sua conta Google e aprove o acesso à pasta do laboratório.*
+
+### 3. Versionando Novos Checkpoints ou Datasets
+
+Quando você treinar um novo modelo ou gerar novos dados pesados:
+
+```bash
+# 1. Registre os pesos ou pastas pesadas no DVC
+uv run dvc add experiments/NOME_DO_EXPERIMENTO/models
+uv run dvc add experiments/NOME_DO_EXPERIMENTO/export
+
+# 2. Envie os arquivos pesados para o Google Drive
+uv run dvc push
+
+# 3. Comite os arquivos de apontamento (.dvc), relatórios e métricas leves no Git
+git add experiments/NOME_DO_EXPERIMENTO/*.dvc
+git add experiments/NOME_DO_EXPERIMENTO/test_results/
+git add experiments/NOME_DO_EXPERIMENTO/visualization/
+git commit -m "feat(exp): novos resultados e checkpoints de NOME_DO_EXPERIMENTO"
+git push
+```
+
+
+---
+
 ##  Arquitetura (Registry Pattern)
 
 A toolbox utiliza um sistema de **Registro Automatico**. Para adicionar um novo componente, voce nao precisa alterar o codigo core; apenas decore sua classe.

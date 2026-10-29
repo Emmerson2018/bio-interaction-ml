@@ -27,7 +27,7 @@ datasets:
 network_g:
   type: TorchvisionClassifier
   architecture: resnet18  # Também pode testar: efficientnet_b0, convnext_tiny, resnet34, mobilenet_v3_large
-  num_classes: 13
+  num_classes: 15
   weights: DEFAULT
   freeze_backbone: false
   dropout: 0.4            # Injeta camada de Dropout antes do classificador final

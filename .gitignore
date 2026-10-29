@@ -5,16 +5,34 @@ build/
 dist/
 wheels/
 *.egg-info
-experiments/*
-!experiments/__init__.py
+# Heavy ML weights and binary artifacts (Managed by DVC)
+*.pth
+*.pt
+*.onnx
+*.onnx.data
+*.tflite
+*.zip
+*.tar
+*.tar.gz
+
+# Assets and Datasets
 assets/blender_models/*
 !assets/blender_models/.gitkeep
 !assets/blender_models/README.md
+!assets/blender_models.dvc
 assets/videos/*
 !assets/videos/.gitkeep
 !assets/videos/README.md
+!assets/videos.dvc
 datasets/generated/*
 !datasets/generated/.gitkeep
+!datasets/generated.dvc
+
+# Always track DVC metadata and pointer files
+!*.dvc
+!**/.dvc
+
 # Virtual environments
 .venv
 venv/
+

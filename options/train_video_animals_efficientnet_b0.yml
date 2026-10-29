@@ -27,7 +27,7 @@ datasets:
 network_g:
   type: TorchvisionClassifier
   architecture: efficientnet_b0
-  num_classes: 13
+  num_classes: 15
   weights: DEFAULT
   freeze_backbone: false
   dropout: 0.3

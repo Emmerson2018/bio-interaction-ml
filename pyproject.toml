@@ -27,6 +27,8 @@ dependencies = [
     "ai-edge-litert>=2.2.0",
     "sng4onnx>=2.0.1",
     "onnxsim>=0.7.3",
+    "dvc>=3.59.0",
+    "dvc-gdrive>=3.0.0",
 ]
 requires-python = ">=3.11"
 

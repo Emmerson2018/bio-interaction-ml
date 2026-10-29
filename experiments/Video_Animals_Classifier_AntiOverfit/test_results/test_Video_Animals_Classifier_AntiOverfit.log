@@ -1,0 +1,28 @@
+2026-09-18 00:29:08,655 [INFO] PyTorch: 2.11.0+cu128 | GPU: True
+2026-09-18 00:29:08,656 [INFO] Starting test evaluation for experiment: Video_Animals_Classifier_AntiOverfit
+2026-09-18 00:29:09,259 [INFO] Test dataset [ImageFolderClassificationDataset] created. Total samples: 54980
+2026-09-18 00:29:09,484 [INFO] Loading model weights from checkpoint: /home/sacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Video_Animals_Classifier_AntiOverfit/models/epoch_14.pth
+2026-09-18 00:29:09,536 [INFO] Running inference on test dataset...
+2026-09-18 00:29:51,310 [INFO] Test Loss: 0.3378 | Test Accuracy: 93.75%
+2026-09-18 00:29:51,310 [INFO] 
+              precision    recall  f1-score   support
+
+        anta       0.99      0.93      0.96      3530
+       arara       0.98      0.93      0.95      1400
+    ariranha       0.95      0.97      0.96      6120
+        boto       0.99      0.96      0.97      2095
+    capivara       0.90      0.91      0.90      7250
+      harpia       0.99      0.97      0.98      5345
+      jacare       0.93      0.92      0.92      5420
+        onca       0.97      0.99      0.98      6565
+    pirarucu       0.94      0.95      0.94      2775
+        sapo       0.99      0.97      0.98      3970
+      sucuri       0.98      0.94      0.96      1110
+     surubim       0.86      0.95      0.90      6060
+    tamandua       0.85      0.74      0.79      3340
+
+    accuracy                           0.94     54980
+   macro avg       0.95      0.93      0.94     54980
+weighted avg       0.94      0.94      0.94     54980
+
+2026-09-18 00:29:52,216 [INFO] Test results saved to: /home/sacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Video_Animals_Classifier_AntiOverfit/test_results
