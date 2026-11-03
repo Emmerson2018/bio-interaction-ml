@@ -1,6 +1,8 @@
+import os
+os.environ['MPLBACKEND'] = 'Agg'
+
 import argparse
 import json
-import os
 import sys
 from collections import OrderedDict
 from pathlib import Path
