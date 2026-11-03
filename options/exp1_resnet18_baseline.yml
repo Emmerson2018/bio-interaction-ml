@@ -1,0 +1,83 @@
+name: Exp1_ResNet18_Baseline_Sanitized
+model_type: ClassificationModel
+num_gpu: 1
+
+datasets:
+  train:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video_sanitized/train
+    image_size: 224
+    grayscale: false
+    augment: true
+    batch_size_per_gpu: 32
+    num_worker_per_gpu: 4
+  val:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video_sanitized/val
+    image_size: 224
+    grayscale: false
+    augment: false
+    batch_size_per_gpu: 32
+    num_worker_per_gpu: 4
+  test:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video_sanitized/test
+    image_size: 224
+    grayscale: false
+    augment: false
+    batch_size_per_gpu: 32
+    num_worker_per_gpu: 4
+
+network_g:
+  type: TorchvisionClassifier
+  architecture: resnet18
+  num_classes: 15
+  weights: DEFAULT
+  freeze_backbone: false
+  dropout: 0.15
+
+train:
+  two_stage:
+    enabled: true
+    freeze_epochs: 3
+    head_lr: !!float 1e-3
+  differential_lr:
+    enabled: true
+    backbone_shallow_lr: !!float 1.5e-5
+    backbone_deep_lr: !!float 4.5e-5
+    head_lr: !!float 4e-4
+  weight_decay: !!float 1e-2
+  total_epochs: 20
+  val_freq: 1
+  save_checkpoint_freq: 5
+  scheduler:
+    type: CosineAnnealingWarmup
+    warmup_epochs: 3
+    min_lr: !!float 1e-6
+  regularization:
+    label_smoothing: 0.1
+    mixup_cutmix:
+      enabled: true
+      mixup_alpha: 0.8
+      cutmix_alpha: 1.0
+  metrics:
+    accuracy:
+      type: AccuracyMetric
+    macro_f1:
+      type: MacroF1Metric
+    balanced_acc:
+      type: BalancedAccuracyMetric
+
+logger:
+  print_freq: 50
+  save_checkpoint_freq: 5
+
+visualization:
+  training_plots:
+    type: LossVisualizer
+  per_class_f1:
+    type: PerClassMetricsVisualizer
+  confidence_box:
+    type: ConfidenceBoxplotVisualizer
+  confusion_matrix:
+    type: ConfusionMatrixVisualizer

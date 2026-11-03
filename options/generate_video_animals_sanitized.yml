@@ -1,0 +1,22 @@
+name: video_animals_sanitized
+
+video:
+  source_dir: assets/videos
+  output_dir: datasets/generated/animals_video_sanitized
+  image_size: 224
+  seed: 20260814
+  device: cuda
+  target_fps: 2.0
+  min_frame_delta: 0.02
+  augmentations_per_frame: 3          # Apenas no split de treino
+  gap_ratio: 0.10                     # Buffer temporal para classes com split intra-vídeo
+  val_ratio_for_shared: 0.45
+  augmentations:
+    rotation_degrees: 20.0
+    affine_shear: 10.0
+    perspective_distortion: 0.15
+    color_jitter: 0.25
+    blur_prob: 0.3
+    noise_prob: 0.3
+    noise_intensity_min: 0.01
+    noise_intensity_max: 0.03

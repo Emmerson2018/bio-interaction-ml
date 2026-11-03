@@ -89,9 +89,8 @@ def main():
 
         # Validacao no final da epoca
         if val_loader is not None and (epoch + 1) % opt['train'].get('val_freq', 1) == 0:
-            metric_results = {name: 0 for name in metrics.keys()}
-            num_val_batches = 0
-            
+            metric_results = {}
+            all_val_predictions = []
             all_val_probabilities = []
             all_val_targets = []
             
@@ -100,16 +99,16 @@ def main():
                 model.test()
                 
                 visuals = model.get_current_visuals()
+                all_val_predictions.append(visuals['prediction'])
                 all_val_probabilities.append(visuals['probabilities'])
                 all_val_targets.append(visuals['target'])
-                
-                for name, metric_fn in metrics.items():
-                    metric_results[name] += metric_fn(visuals['prediction'], visuals['target'])
-                num_val_batches += 1
             
-            # Media das metricas
-            for name in metric_results:
-                metric_results[name] /= num_val_batches
+            # Calculo exato das metricas acumuladas sobre o dataset completo de validacao
+            if len(all_val_predictions) > 0:
+                cat_preds = torch.cat(all_val_predictions, dim=0)
+                cat_targets = torch.cat(all_val_targets, dim=0)
+                for name, metric_fn in metrics.items():
+                    metric_results[name] = metric_fn(cat_preds, cat_targets)
                 
             logger.info(f"--- [Validacao Epoca {epoch}] Metricas: {metric_results} ---")
             

@@ -32,6 +32,8 @@ def main():
     parser.add_argument('-opt', '--options', required=True, help='Path to training YAML config.')
     parser.add_argument('--checkpoint', required=True, help='Path to trained .pth checkpoint file.')
     parser.add_argument('--output-dir', default=None, help='Output directory for exported ONNX and TFLite files.')
+    parser.add_argument('--static-shape', action='store_true', default=True, help='Freeze static batch=1 shape for mobile delegates.')
+    parser.add_argument('--enable-int8', action='store_true', default=True, help='Generate INT8 quantized TFLite model.')
     args = parser.parse_args()
 
     root_path = Path(__file__).resolve().parents[1]
@@ -62,20 +64,33 @@ def main():
     state_dict = checkpoint.get('network', checkpoint)
     net.load_state_dict(state_dict)
 
+    # Gancho de reparametrização estrutural (MobileOne / RepViT / RepVGG)
+    if hasattr(net, 'switch_to_deploy'):
+        print("Invoking net.switch_to_deploy() for structural reparameterization...")
+        net.switch_to_deploy()
+    elif hasattr(net, 'fuse'):
+        print("Invoking net.fuse() for structural reparameterization...")
+        net.fuse()
+
     image_size = int(opt['datasets']['train'].get('image_size', 224))
     dummy_input = torch.randn(1, 3, image_size, image_size)
 
-    # 2. Export ONNX Model
+    # 2. Export ONNX Model (Static Shape por padrão para NPU/GPU móvel)
     onnx_path = output_dir / 'model.onnx'
     print(f"\nExporting PyTorch model to ONNX: {onnx_path}...")
+
+    dynamic_axes = None
+    if not args.static_shape:
+        dynamic_axes = {'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+
     torch.onnx.export(
         net,
         dummy_input,
         str(onnx_path),
         input_names=['input'],
         output_names=['output'],
-        dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
-        opset_version=17,
+        dynamic_axes=dynamic_axes,
+        opset_version=14,
     )
     print("ONNX export complete.")
 
@@ -85,37 +100,42 @@ def main():
         import onnx2tf
         import onnx2tf.onnx2tf as otf
 
-        # Monkeypatch test data downloader to avoid pickled numpy version issue
         otf.download_test_image_data = lambda: np.zeros((1, 3, image_size, image_size), dtype=np.float32)
 
         tflite_temp_dir = output_dir / 'tflite_temp'
         otf.convert(
             input_onnx_file_path=str(onnx_path),
             output_folder_path=str(tflite_temp_dir),
+            output_integer_quantized_tflite=args.enable_int8,
             non_verbose=True,
         )
 
-        # Copy generated tflite models
         f32_tflite = tflite_temp_dir / 'model_float32.tflite'
         f16_tflite = tflite_temp_dir / 'model_float16.tflite'
+        int8_tflite = tflite_temp_dir / 'model_full_integer_quant.tflite'
+        if not int8_tflite.exists():
+            int8_tflite = tflite_temp_dir / 'model_integer_quant.tflite'
 
         final_f32 = output_dir / 'model.tflite'
         final_f16 = output_dir / 'model_fp16.tflite'
+        final_int8 = output_dir / 'model_int8.tflite'
 
         if f32_tflite.exists():
             shutil.copy(f32_tflite, final_f32)
-            print(f"-> Generated Float32 TFLite model: {final_f32}")
+            print(f"-> Generated Float32 TFLite model: {final_f32} ({final_f32.stat().st_size / (1024*1024):.2f} MB)")
 
         if f16_tflite.exists():
             shutil.copy(f16_tflite, final_f16)
-            print(f"-> Generated Float16 TFLite model: {final_f16}")
+            print(f"-> Generated Float16 TFLite model: {final_f16} ({final_f16.stat().st_size / (1024*1024):.2f} MB)")
 
-        # Clean up temp dir
+        if int8_tflite.exists():
+            shutil.copy(int8_tflite, final_int8)
+            print(f"-> Generated INT8 Quantized TFLite model: {final_int8} ({final_int8.stat().st_size / (1024*1024):.2f} MB)")
+
         shutil.rmtree(tflite_temp_dir, ignore_errors=True)
 
     except Exception as exc:
         print(f"Warning: TFLite conversion encountered an issue: {exc}", file=sys.stderr)
-        print(f"You can still convert {onnx_path} manually using onnx2tf.", file=sys.stderr)
 
     # 4. Copy / Export Labels File (labels.txt)
     dataset_root = _resolve_path(root_path, opt['datasets']['train']['root']).parent
@@ -127,7 +147,7 @@ def main():
         with labels_path.open('w', encoding='utf-8') as f:
             for name in class_names:
                 f.write(f"{name}\n")
-        print(f"-> Exported labels list: {labels_path}")
+        print(f"-> Exported labels list: {labels_path} ({len(class_names)} classes)")
 
     print(f"\nAll export files successfully written to: {output_dir}")
 
