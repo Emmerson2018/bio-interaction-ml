@@ -30,7 +30,7 @@ def _load_class_names(class_index_path):
 def main():
     parser = argparse.ArgumentParser(description='Export trained PyTorch model (.pth) to ONNX and TFLite (.tflite).')
     parser.add_argument('-opt', '--options', required=True, help='Path to training YAML config.')
-    parser.add_argument('--checkpoint', required=True, help='Path to trained .pth checkpoint file.')
+    parser.add_argument('--checkpoint', default=None, help='Path to trained .pth checkpoint file. If omitted, automatically selects the latest/best in models/.')
     parser.add_argument('--output-dir', default=None, help='Output directory for exported ONNX and TFLite files.')
     parser.add_argument('--static-shape', action='store_true', default=True, help='Freeze static batch=1 shape for mobile delegates.')
     parser.add_argument('--enable-int8', action='store_true', default=True, help='Generate INT8 quantized TFLite model.')
@@ -55,9 +55,19 @@ def main():
     net = build_network(opt['network_g'])
     net.eval()
 
-    checkpoint_path = _resolve_path(root_path, args.checkpoint)
-    if not checkpoint_path.exists():
-        raise FileNotFoundError(f"Checkpoint file not found: {checkpoint_path}")
+    if args.checkpoint:
+        checkpoint_path = _resolve_path(root_path, args.checkpoint)
+    else:
+        models_dir = root_path / 'experiments' / exp_name / 'models'
+        best_pths = list(models_dir.glob('*best*.pth'))
+        if best_pths:
+            checkpoint_path = best_pths[-1]
+        else:
+            all_pths = sorted(models_dir.glob('*.pth'), key=lambda p: p.stat().st_mtime)
+            if all_pths:
+                checkpoint_path = all_pths[-1]
+            else:
+                raise FileNotFoundError(f"Nenhum checkpoint .pth encontrado em {models_dir}")
 
     print(f"Loading checkpoint weights from {checkpoint_path.name}...")
     checkpoint = torch.load(checkpoint_path, map_location='cpu')

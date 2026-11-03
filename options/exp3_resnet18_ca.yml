@@ -9,7 +9,7 @@ datasets:
     image_size: 224
     grayscale: false
     augment: true
-    batch_size_per_gpu: 32
+    batch_size_per_gpu: 128
     num_worker_per_gpu: 4
   val:
     type: ImageFolderClassificationDataset
@@ -17,7 +17,7 @@ datasets:
     image_size: 224
     grayscale: false
     augment: false
-    batch_size_per_gpu: 32
+    batch_size_per_gpu: 128
     num_worker_per_gpu: 4
   test:
     type: ImageFolderClassificationDataset
@@ -25,7 +25,7 @@ datasets:
     image_size: 224
     grayscale: false
     augment: false
-    batch_size_per_gpu: 32
+    batch_size_per_gpu: 128
     num_worker_per_gpu: 4
 
 network_g:
@@ -37,20 +37,20 @@ network_g:
 train:
   two_stage:
     enabled: true
-    freeze_epochs: 3
-    head_lr: !!float 1e-3
+    freeze_epochs: 2
+    head_lr: !!float 2e-3
   differential_lr:
     enabled: true
-    backbone_shallow_lr: !!float 1.5e-5
-    backbone_deep_lr: !!float 4.5e-5
-    head_lr: !!float 4e-4
+    backbone_shallow_lr: !!float 3.0e-5
+    backbone_deep_lr: !!float 9.0e-5
+    head_lr: !!float 8.0e-4
   weight_decay: !!float 1e-2
   total_epochs: 20
   val_freq: 1
   save_checkpoint_freq: 5
   scheduler:
     type: CosineAnnealingWarmup
-    warmup_epochs: 3
+    warmup_epochs: 2
     min_lr: !!float 1e-6
   regularization:
     label_smoothing: 0.1
