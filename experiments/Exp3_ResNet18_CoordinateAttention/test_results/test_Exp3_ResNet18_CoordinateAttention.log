@@ -1,0 +1,30 @@
+2026-11-03 08:36:12,077 [INFO] PyTorch: 2.11.0+cu128 | GPU: True
+2026-11-03 08:36:12,078 [INFO] Starting test evaluation for experiment: Exp3_ResNet18_CoordinateAttention
+2026-11-03 08:36:12,080 [INFO] Test dataset [ImageFolderClassificationDataset] created. Total samples: 397
+2026-11-03 08:36:12,310 [INFO] Loading model weights from checkpoint: /home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp3_ResNet18_CoordinateAttention/models/epoch_19.pth
+2026-11-03 08:36:12,362 [INFO] Running inference on test dataset...
+2026-11-03 08:36:13,166 [INFO] Test Loss: 1.6529 | Test Accuracy: 62.22%
+2026-11-03 08:36:13,166 [INFO] 
+              precision    recall  f1-score   support
+
+        anta       1.00      0.95      0.97        20
+       arara       1.00      0.53      0.70        15
+    ariranha       0.85      0.82      0.84        28
+        boto       0.67      0.67      0.67        18
+    capivara       0.00      0.00      0.00        17
+   gafanhoto       0.56      0.83      0.67         6
+      harpia       0.65      0.62      0.63        39
+      jacare       0.38      0.85      0.52        27
+     jaraqui       0.75      0.64      0.69        33
+        onca       0.90      0.75      0.82        36
+    pirarucu       0.79      0.75      0.77        36
+        sapo       0.71      0.65      0.68        37
+      sucuri       0.39      0.35      0.37        34
+     surubim       0.56      0.61      0.58        33
+    tamandua       0.11      0.11      0.11        18
+
+    accuracy                           0.62       397
+   macro avg       0.62      0.61      0.60       397
+weighted avg       0.64      0.62      0.62       397
+
+2026-11-03 08:36:13,943 [INFO] Test results saved to: /home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp3_ResNet18_CoordinateAttention/test_results

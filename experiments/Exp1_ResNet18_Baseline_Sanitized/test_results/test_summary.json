@@ -1,0 +1,111 @@
+{
+  "experiment_name": "Exp1_ResNet18_Baseline_Sanitized",
+  "checkpoint": "/home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp1_ResNet18_Baseline_Sanitized/models/epoch_19.pth",
+  "test_loss": 1.8539676368236542,
+  "test_accuracy": 0.5214105793450882,
+  "metrics_per_class": {
+    "anta": {
+      "precision": 0.9473684210526315,
+      "recall": 0.9,
+      "f1-score": 0.9230769230769231,
+      "support": 20.0
+    },
+    "arara": {
+      "precision": 1.0,
+      "recall": 0.7333333333333333,
+      "f1-score": 0.8461538461538461,
+      "support": 15.0
+    },
+    "ariranha": {
+      "precision": 0.6341463414634146,
+      "recall": 0.9285714285714286,
+      "f1-score": 0.7536231884057971,
+      "support": 28.0
+    },
+    "boto": {
+      "precision": 0.4090909090909091,
+      "recall": 0.5,
+      "f1-score": 0.45,
+      "support": 18.0
+    },
+    "capivara": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 17.0
+    },
+    "gafanhoto": {
+      "precision": 0.8333333333333334,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.8333333333333334,
+      "support": 6.0
+    },
+    "harpia": {
+      "precision": 0.6,
+      "recall": 0.6153846153846154,
+      "f1-score": 0.6075949367088608,
+      "support": 39.0
+    },
+    "jacare": {
+      "precision": 0.30434782608695654,
+      "recall": 0.5185185185185185,
+      "f1-score": 0.3835616438356164,
+      "support": 27.0
+    },
+    "jaraqui": {
+      "precision": 0.8333333333333334,
+      "recall": 0.6060606060606061,
+      "f1-score": 0.7017543859649122,
+      "support": 33.0
+    },
+    "onca": {
+      "precision": 0.6136363636363636,
+      "recall": 0.75,
+      "f1-score": 0.675,
+      "support": 36.0
+    },
+    "pirarucu": {
+      "precision": 0.8947368421052632,
+      "recall": 0.4722222222222222,
+      "f1-score": 0.6181818181818182,
+      "support": 36.0
+    },
+    "sapo": {
+      "precision": 0.64,
+      "recall": 0.43243243243243246,
+      "f1-score": 0.5161290322580645,
+      "support": 37.0
+    },
+    "sucuri": {
+      "precision": 0.14285714285714285,
+      "recall": 0.058823529411764705,
+      "f1-score": 0.08333333333333333,
+      "support": 34.0
+    },
+    "surubim": {
+      "precision": 0.3488372093023256,
+      "recall": 0.45454545454545453,
+      "f1-score": 0.39473684210526316,
+      "support": 33.0
+    },
+    "tamandua": {
+      "precision": 0.08108108108108109,
+      "recall": 0.16666666666666666,
+      "f1-score": 0.10909090909090909,
+      "support": 18.0
+    },
+    "accuracy": 0.5214105793450882,
+    "macro avg": {
+      "precision": 0.5521845868895169,
+      "recall": 0.5313261426986917,
+      "f1-score": 0.5263713461632451,
+      "support": 397.0
+    },
+    "weighted avg": {
+      "precision": 0.5516225674566501,
+      "recall": 0.5214105793450882,
+      "f1-score": 0.5189928519289548,
+      "support": 397.0
+    }
+  }
+}

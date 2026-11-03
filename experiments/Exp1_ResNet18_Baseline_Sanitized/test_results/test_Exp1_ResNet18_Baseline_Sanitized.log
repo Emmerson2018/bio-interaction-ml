@@ -1,0 +1,30 @@
+2026-11-03 08:34:56,580 [INFO] PyTorch: 2.11.0+cu128 | GPU: True
+2026-11-03 08:34:56,580 [INFO] Starting test evaluation for experiment: Exp1_ResNet18_Baseline_Sanitized
+2026-11-03 08:34:56,583 [INFO] Test dataset [ImageFolderClassificationDataset] created. Total samples: 397
+2026-11-03 08:34:56,886 [INFO] Loading model weights from checkpoint: /home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp1_ResNet18_Baseline_Sanitized/models/epoch_19.pth
+2026-11-03 08:34:56,934 [INFO] Running inference on test dataset...
+2026-11-03 08:34:57,716 [INFO] Test Loss: 1.8540 | Test Accuracy: 52.14%
+2026-11-03 08:34:57,716 [INFO] 
+              precision    recall  f1-score   support
+
+        anta       0.95      0.90      0.92        20
+       arara       1.00      0.73      0.85        15
+    ariranha       0.63      0.93      0.75        28
+        boto       0.41      0.50      0.45        18
+    capivara       0.00      0.00      0.00        17
+   gafanhoto       0.83      0.83      0.83         6
+      harpia       0.60      0.62      0.61        39
+      jacare       0.30      0.52      0.38        27
+     jaraqui       0.83      0.61      0.70        33
+        onca       0.61      0.75      0.68        36
+    pirarucu       0.89      0.47      0.62        36
+        sapo       0.64      0.43      0.52        37
+      sucuri       0.14      0.06      0.08        34
+     surubim       0.35      0.45      0.39        33
+    tamandua       0.08      0.17      0.11        18
+
+    accuracy                           0.52       397
+   macro avg       0.55      0.53      0.53       397
+weighted avg       0.55      0.52      0.52       397
+
+2026-11-03 08:34:58,404 [INFO] Test results saved to: /home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp1_ResNet18_Baseline_Sanitized/test_results

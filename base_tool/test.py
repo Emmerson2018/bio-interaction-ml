@@ -80,7 +80,11 @@ def main():
     logger.info(f"Loading model weights from checkpoint: {checkpoint_path}")
     checkpoint = torch.load(checkpoint_path, map_location=model.device)
     state_dict = checkpoint.get('network', checkpoint)
-    model.net.load_state_dict(state_dict)
+    load_res = model.net.load_state_dict(state_dict, strict=False)
+    if load_res.missing_keys:
+        logger.warning(f"Missing keys in state_dict: {load_res.missing_keys}")
+    if load_res.unexpected_keys:
+        logger.info(f"Ignored {len(load_res.unexpected_keys)} unexpected keys in state_dict.")
     model.net.eval()
 
     # 3. Build Metrics
