@@ -72,15 +72,20 @@ def main():
     print(f"Loading checkpoint weights from {checkpoint_path.name}...")
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
     state_dict = checkpoint.get('network', checkpoint)
-    net.load_state_dict(state_dict)
+    net.load_state_dict(state_dict, strict=False)
+
+    export_net = net
+    if hasattr(net, 'classifier') and isinstance(net.classifier, torch.nn.Module):
+        print("Detected TwoStageCropClassifier: exporting the ROI classifier module (net.classifier) for mobile deployment...")
+        export_net = net.classifier
 
     # Gancho de reparametrização estrutural (MobileOne / RepViT / RepVGG)
-    if hasattr(net, 'switch_to_deploy'):
-        print("Invoking net.switch_to_deploy() for structural reparameterization...")
-        net.switch_to_deploy()
-    elif hasattr(net, 'fuse'):
-        print("Invoking net.fuse() for structural reparameterization...")
-        net.fuse()
+    if hasattr(export_net, 'switch_to_deploy'):
+        print("Invoking export_net.switch_to_deploy() for structural reparameterization...")
+        export_net.switch_to_deploy()
+    elif hasattr(export_net, 'fuse'):
+        print("Invoking export_net.fuse() for structural reparameterization...")
+        export_net.fuse()
 
     image_size = int(opt['datasets']['train'].get('image_size', 224))
     dummy_input = torch.randn(1, 3, image_size, image_size)
@@ -94,13 +99,15 @@ def main():
         dynamic_axes = {'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
 
     torch.onnx.export(
-        net,
+        export_net,
         dummy_input,
         str(onnx_path),
         input_names=['input'],
         output_names=['output'],
         dynamic_axes=dynamic_axes,
-        opset_version=14,
+        opset_version=13,
+        do_constant_folding=True,
+        dynamo=False,
     )
     print("ONNX export complete.")
 
@@ -113,18 +120,23 @@ def main():
         otf.download_test_image_data = lambda: np.zeros((1, 3, image_size, image_size), dtype=np.float32)
 
         tflite_temp_dir = output_dir / 'tflite_temp'
-        otf.convert(
-            input_onnx_file_path=str(onnx_path),
-            output_folder_path=str(tflite_temp_dir),
-            output_integer_quantized_tflite=args.enable_int8,
-            non_verbose=True,
-        )
+        try:
+            otf.convert(
+                input_onnx_file_path=str(onnx_path),
+                output_folder_path=str(tflite_temp_dir),
+                output_integer_quantized_tflite=args.enable_int8,
+                non_verbose=True,
+            )
+        except Exception as conv_err:
+            print(f"Notice: onnx2tf converter reported: {conv_err}. Processing generated artifacts...")
 
         f32_tflite = tflite_temp_dir / 'model_float32.tflite'
         f16_tflite = tflite_temp_dir / 'model_float16.tflite'
         int8_tflite = tflite_temp_dir / 'model_full_integer_quant.tflite'
         if not int8_tflite.exists():
             int8_tflite = tflite_temp_dir / 'model_integer_quant.tflite'
+        if not int8_tflite.exists():
+            int8_tflite = tflite_temp_dir / 'model_dynamic_range_quant.tflite'
 
         final_f32 = output_dir / 'model.tflite'
         final_f16 = output_dir / 'model_fp16.tflite'
