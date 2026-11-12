@@ -39,6 +39,9 @@ def main():
         'options/exp3_resnet18_ca.yml',
         'options/exp_mobilenetv4_small.yml',
         'options/exp_repvit_m0_9.yml',
+        'options/exp_loss_ce.yml',
+        'options/exp_loss_focal.yml',
+        'options/exp_mobilenetv4_sam2_crops.yml',
     ]
 
     for c in configs:

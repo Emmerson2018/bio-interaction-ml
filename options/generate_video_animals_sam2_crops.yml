@@ -1,0 +1,15 @@
+name: video_animals_sam2_crops
+
+video:
+  source_dir: assets/videos
+  output_dir: datasets/generated/animals_video_sam2_crops
+  annotations_file: assets/annotations/video_point_prompts.json
+  sam_model: sam2_t.pt
+  crop_margin: 0.15                   # +15% de margem quadrada ao redor do animal
+  image_size: 224
+  seed: 20260814
+  device: cuda
+  target_fps: 2.0
+  min_frame_delta: 0.02
+  gap_ratio: 0.10
+  val_ratio_for_shared: 0.45

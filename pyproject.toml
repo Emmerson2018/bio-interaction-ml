@@ -46,6 +46,7 @@ base-recognize = "base_tool.infer:main"
 base-export = "base_tool.export:main"
 base-test = "base_tool.test:main"
 base-annotate-anchors = "base_tool.tools.annotate_anchors:main"
+base-generate-sam2-crops = "base_tool.synthetic.generate_sam2_crops_dataset:main"
 
 [project.optional-dependencies]
 synthetic = [
