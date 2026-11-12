@@ -26,8 +26,9 @@ class ModelEMA:
         for k, ema_v in self.ema.state_dict().items():
             if k in model_sd:
                 model_v = model_sd[k]
-                if self.device:
-                    model_v = model_v.to(self.device)
+                # Garantir paridade estrita de dispositivos
+                if model_v.device != ema_v.device:
+                    model_v = model_v.to(ema_v.device)
                 if ema_v.dtype.is_floating_point:
                     ema_v.mul_(self.decay).add_(model_v, alpha=1.0 - self.decay)
                 else:

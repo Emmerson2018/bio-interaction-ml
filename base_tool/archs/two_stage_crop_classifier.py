@@ -37,19 +37,15 @@ class TwoStageCropClassifier(nn.Module):
             nn.Linear(in_features, num_classes),
         )
 
-        # 2. Inicializar detector YOLO em container seguro fora de _modules
-        # (YOLO herda de nn.Module mas sobrescreve .train() para treino COCO,
-        # portanto NÃO deve ser registrado como submódulo do PyTorch)
+        # 2. Inicializar detector YOLO em container seguro fora de _modules do PyTorch
+        # (YOLO herda de nn.Module mas NÃO deve ser registrado como submódulo para evitar
+        # poluição de state_dict, vazamento de memória e interferência no Model EMA)
         self._detector_holder = [None]
         self.detector_weights = detector_weights
 
     @property
     def detector(self):
         return self._detector_holder[0]
-
-    @detector.setter
-    def detector(self, value):
-        self._detector_holder[0] = value
 
     def train(self, mode: bool = True):
         self.training = mode
@@ -60,17 +56,18 @@ class TwoStageCropClassifier(nn.Module):
         return self
 
     def _ensure_detector_loaded(self, device):
-        if self.detector is None:
+        if self._detector_holder[0] is None:
             try:
                 from ultralytics import YOLO
-                self.detector = YOLO(self.detector_weights)
-                # Congelar detector para que os gradientes sejam calculados apenas no classificador
-                if hasattr(self.detector, 'model'):
-                    for param in self.detector.model.parameters():
+                det = YOLO(self.detector_weights)
+                if hasattr(det, 'model') and isinstance(det.model, nn.Module):
+                    for param in det.model.parameters():
                         param.requires_grad = False
+                    det.model.eval()
+                self._detector_holder[0] = det
             except Exception as e:
                 print(f"[TwoStageCropClassifier] Aviso ao carregar YOLO: {e}. Usando fallback central crop.")
-                self.detector = False
+                self._detector_holder[0] = False
 
     def extract_crops(self, x: torch.Tensor) -> torch.Tensor:
         """
