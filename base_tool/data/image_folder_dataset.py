@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from PIL import Image
-from torchvision import transforms
+import torch
+import torchvision.transforms.v2 as v2
 
 from base_tool.data.base_dataset import BaseDataset
 from base_tool.utils.registry import DATASET_REGISTRY
@@ -37,29 +38,26 @@ class ImageFolderClassificationDataset(BaseDataset):
     def _build_transform(self):
         use_grayscale = bool(self.opt.get('grayscale', False))
         transform_list = [
-            transforms.Resize((self.image_size, self.image_size)),
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Resize((self.image_size, self.image_size), antialias=True),
         ]
         if use_grayscale:
-            transform_list.append(transforms.Grayscale(num_output_channels=3))
+            transform_list.append(v2.Grayscale(num_output_channels=3))
 
         if self.augment:
+            randaug_mag = int(self.opt.get('randaugment_magnitude', 7))
+            randaug_ops = int(self.opt.get('randaugment_ops', 2))
             transform_list.extend([
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomRotation(degrees=20),
-                transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
-                transforms.RandomAffine(degrees=0, translate=(0.08, 0.08), scale=(0.9, 1.1), shear=10),
+                v2.RandomHorizontalFlip(p=0.5),
+                v2.RandAugment(num_ops=randaug_ops, magnitude=randaug_mag),
             ])
-        transform_list.extend([
-            transforms.ToTensor(),
-        ])
-        if self.augment:
-            transform_list.append(transforms.RandomErasing(p=0.3, scale=(0.02, 0.2)))
 
         transform_list.append(
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         )
-            
-        return transforms.Compose(transform_list)
+
+        return v2.Compose(transform_list)
 
     def __len__(self):
         return len(self.samples)

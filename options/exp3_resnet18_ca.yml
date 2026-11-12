@@ -30,7 +30,7 @@ datasets:
 
 network_g:
   type: ResNet18CA
-  num_classes: 15
+  num_classes: 16
   weights: DEFAULT
   dropout: 0.15
 

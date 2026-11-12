@@ -31,7 +31,7 @@ datasets:
 network_g:
   type: TorchvisionClassifier
   architecture: resnet18
-  num_classes: 15
+  num_classes: 16
   weights: DEFAULT
   freeze_backbone: false
   dropout: 0.15
@@ -47,6 +47,9 @@ train:
     backbone_deep_lr: !!float 9.0e-5
     head_lr: !!float 8.0e-4
   weight_decay: !!float 1e-2
+  ema:
+    enabled: true
+    decay: 0.999
   total_epochs: 20
   val_freq: 1
   save_checkpoint_freq: 5

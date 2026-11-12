@@ -31,7 +31,7 @@ datasets:
 network_g:
   type: TwoStageCropClassifier
   classifier_arch: resnet18
-  num_classes: 15
+  num_classes: 16
   weights: DEFAULT
   dropout: 0.15
   crop_margin: 0.15
