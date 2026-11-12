@@ -17,7 +17,9 @@ def build_dataloader(dataset, opt, phase):
     """Constroi um dataloader."""
     if phase == 'train':
         batch_size = opt['datasets']['train'].get('batch_size_per_gpu', 1)
-        num_worker = opt['datasets']['train'].get('num_worker_per_gpu', 0)
+        requested_workers = opt['datasets']['train'].get('num_worker_per_gpu', 0)
+        max_cpus = os.cpu_count() or 1
+        num_worker = min(requested_workers, max_cpus)
         shuffle = True
     else:
         batch_size = 1
