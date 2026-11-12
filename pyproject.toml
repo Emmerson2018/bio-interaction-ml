@@ -45,6 +45,7 @@ base-generate-video-dataset = "base_tool.synthetic.generate_video_dataset:main"
 base-recognize = "base_tool.infer:main"
 base-export = "base_tool.export:main"
 base-test = "base_tool.test:main"
+base-annotate-anchors = "base_tool.tools.annotate_anchors:main"
 
 [project.optional-dependencies]
 synthetic = [
