@@ -90,7 +90,7 @@ def main():
     args = parser.parse_args()
 
     opt = parse_options(args.opt, is_train=True)
-    out_dir = Path('experiments/exp1_resnet18_baseline')
+    out_dir = Path(opt['path']['experiments_root'])
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"\n==========================================")
