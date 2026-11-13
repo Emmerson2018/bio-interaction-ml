@@ -187,53 +187,76 @@ def main():
                 is_valid = True
                 sim_score = 1.0
             else:
-                # Segmentação SAM 2 com Verificação de Gabarito
+                # Segmentação SAM 2 com Verificação de Gabarito Competitiva (Best-Match)
                 try:
-                    if not verifier.has_exemplar():
-                        # Primeiro quadro com animal: usa ponto de âncora nominal
-                        results = sam_model(frame_bgr, points=[active_point], labels=[1], verbose=False, device=device_str)
-                    elif last_box is not None:
-                        # Rastreamento normal por caixa anterior
-                        results = sam_model(frame_bgr, bboxes=[last_box], verbose=False, device=device_str)
-                    else:
-                        # Sonda de Re-Aquisição na âncora nominal após oclusão
-                        results = sam_model(frame_bgr, points=[active_point], labels=[1], verbose=False, device=device_str)
+                    raw_proposals = []
 
-                    has_candidate = len(results) > 0 and results[0].boxes is not None and len(results[0].boxes.xyxy) > 0
+                    if last_box is not None:
+                        res_track = sam_model(frame_bgr, bboxes=[last_box], verbose=False, device=device_str)
+                        if len(res_track) > 0 and res_track[0].boxes is not None:
+                            for b_i in range(len(res_track[0].boxes)):
+                                bx = res_track[0].boxes.xyxy[b_i].cpu().numpy().tolist()
+                                mk = res_track[0].masks.data[b_i].cpu().numpy().astype(np.uint8) if res_track[0].masks is not None else None
+                                raw_proposals.append((bx, mk, "tracked_box"))
 
-                    if has_candidate:
-                        detected_box = results[0].boxes.xyxy[0].cpu().tolist()
-                        mask_cand = results[0].masks.data[0].cpu().numpy().astype(np.uint8) if results[0].masks is not None else None
-                        cand_crop, applied_b = extract_square_crop(frame_bgr, detected_box, margin=crop_margin, target_size=image_size)
+                    need_anchor_probe = (last_box is None)
+                    if not need_anchor_probe and raw_proposals and verifier.has_exemplar():
+                        bx_t, mk_t, _ = raw_proposals[0]
+                        cp_t, _ = extract_square_crop(frame_bgr, bx_t, margin=crop_margin, target_size=image_size)
+                        quick_ver = verifier.verify_candidate(cp_t, bx_t, frame_bgr.shape, mk_t, anchor_pt=active_point)
+                        if quick_ver['similarity'] < 0.68:
+                            need_anchor_probe = True
 
+                    if need_anchor_probe:
+                        res_anchor = sam_model(frame_bgr, points=[active_point], labels=[1], verbose=False, device=device_str)
+                        if len(res_anchor) > 0 and res_anchor[0].boxes is not None:
+                            for b_i in range(len(res_anchor[0].boxes)):
+                                bx = res_anchor[0].boxes.xyxy[b_i].cpu().numpy().tolist()
+                                mk = res_anchor[0].masks.data[b_i].cpu().numpy().astype(np.uint8) if res_anchor[0].masks is not None else None
+                                raw_proposals.append((bx, mk, "anchor_probe"))
+
+                    if raw_proposals:
                         if not verifier.has_exemplar():
-                            # Registra o Gabarito de Ouro do animal para este vídeo
-                            verifier.set_exemplar(cand_crop, mask_cand)
+                            bx_init, mk_init, _ = raw_proposals[0]
+                            cp_init, app_init = extract_square_crop(frame_bgr, bx_init, margin=crop_margin, target_size=image_size)
+                            verifier.set_exemplar(cp_init, mk_init)
                             is_valid = True
                             sim_score = 1.0
-                            crop_bgr = cand_crop
-                            applied_box = applied_b
-                            last_box = detected_box
+                            crop_bgr = cp_init
+                            applied_box = app_init
+                            last_box = bx_init
                             detection_mode = "sam2_exemplar_init"
                         else:
-                            # Avalia se o candidato corresponde ao mesmo animal
-                            ver_res = verifier.verify_candidate(cand_crop, detected_box, (h_f, w_f), mask_cand)
-                            is_valid = ver_res['is_valid']
-                            sim_score = ver_res['similarity']
+                            evaluated_candidates = []
+                            for bx_cand, mk_cand, origin in raw_proposals:
+                                cp_cand, app_cand = extract_square_crop(frame_bgr, bx_cand, margin=crop_margin, target_size=image_size)
+                                ver_res = verifier.verify_candidate(
+                                    cp_cand, bx_cand, (h_f, w_f), mk_cand, anchor_pt=active_point
+                                )
+                                evaluated_candidates.append({
+                                    'box': bx_cand,
+                                    'mask': mk_cand,
+                                    'crop': cp_cand,
+                                    'app': app_cand,
+                                    'origin': origin,
+                                    'ver': ver_res,
+                                    'score': ver_res['similarity'],
+                                })
 
-                            if is_valid:
-                                crop_bgr = cand_crop
-                                applied_box = applied_b
-                                last_box = detected_box
-                                detection_mode = "sam2_track_verified"
+                            best = max(evaluated_candidates, key=lambda c: c['score'])
+                            if best['ver']['is_valid']:
+                                crop_bgr = best['crop']
+                                applied_box = best['app']
+                                last_box = best['box']
+                                is_valid = True
+                                sim_score = best['score']
+                                detection_mode = f"sam2_best_{best['origin']}"
                             else:
-                                # Oclusão detectada (mão/dedos ou deriva) -> DESCARTA
                                 is_valid = False
-                                last_box = None  # Reseta caixa para re-sondar na âncora
+                                last_box = None
                                 total_dropped_occlusions += 1
-                                detection_mode = f"dropped_{ver_res['reason']}"
+                                detection_mode = f"dropped_{best['ver']['reason']}"
                     else:
-                        # Nenhuma detecção
                         is_valid = False
                         last_box = None
                         total_dropped_occlusions += 1

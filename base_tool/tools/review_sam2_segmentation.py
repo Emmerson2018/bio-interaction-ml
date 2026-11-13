@@ -406,66 +406,97 @@ def main():
 
                 if has_animal and active_point_px is not None:
                     try:
-                        # Fase A: Segmentação
+                        # Fase A: Coleta de Propostas de Candidatos (Multi-Candidate Proposals)
+                        raw_proposals = []
+
                         if last_tracked_box is not None:
-                            # Propagação normal por Bounding Box do quadro anterior
-                            res = sam_model(
+                            # 1. Rastreamento por caixa anterior
+                            res_track = sam_model(
                                 frame_raw,
                                 bboxes=[last_tracked_box],
                                 verbose=False,
                                 device=device,
                             )
-                        else:
-                            # Sonda de Inicialização / Re-Aquisição na âncora nominal
-                            res = sam_model(
+                            if len(res_track) > 0 and res_track[0].boxes is not None:
+                                for b_i in range(len(res_track[0].boxes)):
+                                    bx = res_track[0].boxes.xyxy[b_i].cpu().numpy().tolist()
+                                    mk = res_track[0].masks.data[b_i].cpu().numpy().astype(np.uint8) if res_track[0].masks is not None else None
+                                    raw_proposals.append((bx, mk, "tracked_box"))
+
+                        # Se não há caixa anterior OU se precisamos sondar a âncora nominal (Drift Breaker / Re-aquisição)
+                        need_anchor_probe = (last_tracked_box is None)
+
+                        # Se tivermos propostas de tracking, checamos se o score do melhor é marginal para ativar Drift Breaker
+                        if not need_anchor_probe and raw_proposals and verifier.has_exemplar():
+                            bx_t, mk_t, _ = raw_proposals[0]
+                            cp_t, _ = extract_square_crop(frame_raw, bx_t, margin=0.15, target_size=224)
+                            quick_ver = verifier.verify_candidate(cp_t, bx_t, frame_raw.shape, mk_t, anchor_pt=active_point_px)
+                            if quick_ver['similarity'] < 0.68:
+                                need_anchor_probe = True
+
+                        if need_anchor_probe:
+                            res_anchor = sam_model(
                                 frame_raw,
                                 points=[list(active_point_px)],
                                 labels=[1],
                                 verbose=False,
                                 device=device,
                             )
+                            if len(res_anchor) > 0 and res_anchor[0].boxes is not None:
+                                for b_i in range(len(res_anchor[0].boxes)):
+                                    bx = res_anchor[0].boxes.xyxy[b_i].cpu().numpy().tolist()
+                                    mk = res_anchor[0].masks.data[b_i].cpu().numpy().astype(np.uint8) if res_anchor[0].masks is not None else None
+                                    raw_proposals.append((bx, mk, "anchor_probe"))
 
-                        candidate_found = (
-                            len(res) > 0 and res[0].boxes is not None and len(res[0].boxes) > 0
-                        )
-
-                        if candidate_found:
-                            box_cand = res[0].boxes.xyxy[0].cpu().numpy().tolist()
-                            mask_cand = res[0].masks.data[0].cpu().numpy().astype(np.uint8) if res[0].masks is not None else None
-                            crop_cand, _ = extract_square_crop(frame_raw, box_cand, margin=0.15, target_size=224)
-
-                            # Se ainda não tivermos o Gabarito de Ouro, o primeiro frame com animal vira o gabarito
+                        # Fase B: Avaliação Competitiva Best-Match
+                        if raw_proposals:
                             if not verifier.has_exemplar():
-                                verifier.set_exemplar(crop_cand, mask_cand)
+                                # Primeiro frame: registra o gabarito
+                                bx_init, mk_init, _ = raw_proposals[0]
+                                cp_init, _ = extract_square_crop(frame_raw, bx_init, margin=0.15, target_size=224)
+                                verifier.set_exemplar(cp_init, mk_init)
                                 is_valid = True
                                 sim_score = 1.0
-                                box_xyxy = box_cand
-                                mask_np = mask_cand
-                                crop_224 = crop_cand
-                                last_tracked_box = box_cand
+                                box_xyxy = bx_init
+                                mask_np = mk_init
+                                crop_224 = cp_init
+                                last_tracked_box = bx_init
                             else:
-                                # Avaliar candidato contra o Gabarito de Ouro
-                                ver_res = verifier.verify_candidate(
-                                    crop_cand, box_cand, frame_raw.shape, mask_cand
-                                )
-                                is_valid = ver_res['is_valid']
-                                sim_score = ver_res['similarity']
+                                evaluated_candidates = []
+                                for bx_cand, mk_cand, origin in raw_proposals:
+                                    cp_cand, _ = extract_square_crop(frame_raw, bx_cand, margin=0.15, target_size=224)
+                                    ver_res = verifier.verify_candidate(
+                                        cp_cand, bx_cand, frame_raw.shape, mk_cand, anchor_pt=active_point_px
+                                    )
+                                    evaluated_candidates.append({
+                                        'box': bx_cand,
+                                        'mask': mk_cand,
+                                        'crop': cp_cand,
+                                        'origin': origin,
+                                        'ver': ver_res,
+                                        'score': ver_res['similarity'],
+                                    })
 
-                                if is_valid:
-                                    # Sucesso! Animal reconhecido e mantido
-                                    box_xyxy = box_cand
-                                    mask_np = mask_cand
-                                    crop_224 = crop_cand
-                                    last_tracked_box = box_cand
+                                # Seleciona o vencedor por argmax do escore de similaridade
+                                best = max(evaluated_candidates, key=lambda c: c['score'])
+
+                                if best['ver']['is_valid']:
+                                    # Sucesso! Candidato aprovado
+                                    box_xyxy = best['box']
+                                    mask_np = best['mask']
+                                    crop_224 = best['crop']
+                                    last_tracked_box = best['box']
+                                    is_valid = True
+                                    sim_score = best['score']
                                 else:
-                                    # Oclusão ou deriva detectada! DESCARTA O RECORTE
-                                    # e ZERA a caixa anterior para acionar a sonda de re-aquisição no próximo frame
-                                    box_xyxy = box_cand
-                                    mask_np = mask_cand
-                                    crop_224 = crop_cand
+                                    # Todos os candidatos reprovados (oclusão / deriva)
+                                    box_xyxy = best['box']
+                                    mask_np = best['mask']
+                                    crop_224 = best['crop']
                                     last_tracked_box = None
+                                    is_valid = False
+                                    sim_score = best['score']
                         else:
-                            # Nenhuma caixa encontrada pelo SAM
                             is_valid = False
                             sim_score = 0.0
                             last_tracked_box = None

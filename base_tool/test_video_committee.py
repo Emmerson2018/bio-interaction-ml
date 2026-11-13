@@ -208,36 +208,57 @@ def run_video_committee(
 
             if use_sam2 and sam_model is not None and has_animal and point_norm:
                 pt_px = [int(round(point_norm[0] * w_f)), int(round(point_norm[1] * h_f))]
-                if verifier is not None and not verifier.has_exemplar():
-                    res = sam_model(frame_bgr, points=[pt_px], labels=[1], verbose=False)
-                elif last_box is not None:
-                    res = sam_model(frame_bgr, bboxes=[last_box], verbose=False)
-                else:
-                    # Sonda de re-aquisição na âncora nominal após perda/descarte
-                    res = sam_model(frame_bgr, points=[pt_px], labels=[1], verbose=False)
+                raw_proposals = []
 
-                if len(res) > 0 and res[0].boxes is not None and len(res[0].boxes.xyxy) > 0:
-                    detected_box = res[0].boxes.xyxy[0].cpu().tolist()
-                    mask_cand = res[0].masks.data[0].cpu().numpy().astype(np.uint8) if res[0].masks is not None else None
-                    cand_crop, _ = extract_square_crop(frame_bgr, detected_box, margin=0.15, target_size=224)
+                if last_box is not None:
+                    res_track = sam_model(frame_bgr, bboxes=[last_box], verbose=False)
+                    if len(res_track) > 0 and res_track[0].boxes is not None:
+                        for b_i in range(len(res_track[0].boxes)):
+                            bx = res_track[0].boxes.xyxy[b_i].cpu().tolist()
+                            mk = res_track[0].masks.data[b_i].cpu().numpy().astype(np.uint8) if res_track[0].masks is not None else None
+                            raw_proposals.append((bx, mk))
 
-                    if verifier is not None:
-                        if not verifier.has_exemplar():
-                            verifier.set_exemplar(cand_crop, mask_cand)
-                            crop_bgr = cand_crop
-                            last_box = detected_box
-                        else:
-                            ver_res = verifier.verify_candidate(cand_crop, detected_box, (h_f, w_f), mask_cand)
-                            if ver_res['is_valid']:
-                                crop_bgr = cand_crop
-                                last_box = detected_box
-                            else:
-                                # Oclusão detectada -> descarta este frame da votação do comitê!
-                                last_box = None
-                                continue
+                need_anchor_probe = (last_box is None)
+                if not need_anchor_probe and raw_proposals and verifier is not None and verifier.has_exemplar():
+                    bx_t, mk_t = raw_proposals[0]
+                    cp_t, _ = extract_square_crop(frame_bgr, bx_t, margin=0.15, target_size=224)
+                    quick_ver = verifier.verify_candidate(cp_t, bx_t, (h_f, w_f), mk_t, anchor_pt=pt_px)
+                    if quick_ver['similarity'] < 0.68:
+                        need_anchor_probe = True
+
+                if need_anchor_probe:
+                    res_anchor = sam_model(frame_bgr, points=[pt_px], labels=[1], verbose=False)
+                    if len(res_anchor) > 0 and res_anchor[0].boxes is not None:
+                        for b_i in range(len(res_anchor[0].boxes)):
+                            bx = res_anchor[0].boxes.xyxy[b_i].cpu().tolist()
+                            mk = res_anchor[0].masks.data[b_i].cpu().numpy().astype(np.uint8) if res_anchor[0].masks is not None else None
+                            raw_proposals.append((bx, mk))
+
+                if raw_proposals:
+                    if verifier is not None and not verifier.has_exemplar():
+                        bx_init, mk_init = raw_proposals[0]
+                        cp_init, _ = extract_square_crop(frame_bgr, bx_init, margin=0.15, target_size=224)
+                        verifier.set_exemplar(cp_init, mk_init)
+                        crop_bgr = cp_init
+                        last_box = bx_init
                     else:
-                        crop_bgr = cand_crop
-                        last_box = detected_box
+                        evaluated_candidates = []
+                        for bx_cand, mk_cand in raw_proposals:
+                            cp_cand, _ = extract_square_crop(frame_bgr, bx_cand, margin=0.15, target_size=224)
+                            ver_res = verifier.verify_candidate(cp_cand, bx_cand, (h_f, w_f), mk_cand, anchor_pt=pt_px) if verifier else {'is_valid': True, 'similarity': 1.0}
+                            evaluated_candidates.append({
+                                'box': bx_cand,
+                                'crop': cp_cand,
+                                'ver': ver_res,
+                                'score': ver_res['similarity'],
+                            })
+                        best = max(evaluated_candidates, key=lambda c: c['score'])
+                        if best['ver']['is_valid']:
+                            crop_bgr = best['crop']
+                            last_box = best['box']
+                        else:
+                            last_box = None
+                            continue
                 else:
                     last_box = None
                     continue
