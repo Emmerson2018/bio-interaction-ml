@@ -13,15 +13,32 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 EXP_DIRS = [
-    ("Exp 1: ResNet18 Baseline", "experiments/Exp1_ResNet18_Baseline_Sanitized"),
-    ("Exp 2: ResNet18 YOLO Crop", "experiments/Exp2_ResNet18_YOLO_Crop"),
-    ("Exp 3: ResNet18 Coord. Attention", "experiments/Exp3_ResNet18_CoordinateAttention"),
-    ("Exp 4A: MobileNetV4 CE Loss", "experiments/Exp_Loss_CE_MobileNetV4"),
-    ("Exp 4B: MobileNetV4 Focal Loss", "experiments/Exp_Loss_Focal_MobileNetV4"),
-    ("Exp 4C: MobileNetV4 BalancedSoftmax", "experiments/Exp_MobileNetV4_Small_BalancedSoftmax"),
-    ("Exp 5: RepViT-M0.9 BalancedSoftmax", "experiments/Exp_RepViT_M0_9_BalancedSoftmax"),
-    ("Exp 6: RepViT-M0.9 SAM2 Crops", "experiments/Exp_RepViT_M0_9_SAM2_Crops"),
-    ("Exp 7: MobileNetV4 SAM2 Crops", "experiments/Exp_MobileNetV4_SAM2_Crops"),
+    # --- Família 1: ResNet-18 ---
+    ("ResNet18 Baseline", "experiments/Exp1_ResNet18_Baseline_Sanitized"),
+    ("ResNet18 + YOLO Crop", "experiments/Exp2_ResNet18_YOLO_Crop"),
+    ("ResNet18 + Coord. Attention", "experiments/Exp3_ResNet18_CoordinateAttention"),
+    ("ResNet18 + SAM2 Crops", "experiments/Exp_ResNet18_SAM2_Crops"),
+
+    # --- Família 2: MobileNetV4-Small ---
+    ("MobileNetV4 Baseline", "experiments/Exp_MobileNetV4_Small_Baseline"),
+    ("MobileNetV4 + YOLO Crop", "experiments/Exp_MobileNetV4_Small_YOLOCrop"),
+    ("MobileNetV4 + Coord. Attention", "experiments/Exp_MobileNetV4_Small_CoordinateAttention"),
+    ("MobileNetV4 + SAM2 Crops", "experiments/Exp_MobileNetV4_SAM2_Crops"),
+
+    # --- Família 3: RepViT-M0.9 ---
+    ("RepViT-M0.9 Baseline (CE)", "experiments/Exp_RepViT_M0_9_Baseline"),
+    ("RepViT-M0.9 + YOLO Crop", "experiments/Exp_RepViT_M0_9_YOLOCrop"),
+    ("RepViT-M0.9 + Coord. Attention", "experiments/Exp_RepViT_M0_9_CoordinateAttention"),
+    ("RepViT-M0.9 + SAM2 Crops", "experiments/Exp_RepViT_M0_9_SAM2_Crops"),
+
+    # --- Estudo de Funções de Perda no Campeão RepViT ---
+    ("Exp 4A: RepViT + Cross-Entropy", "experiments/Exp_Loss_CE_RepViT"),
+    ("Exp 4B: RepViT + Focal Loss", "experiments/Exp_Loss_Focal_RepViT"),
+    ("Exp 4C: RepViT + BalancedSoftmax (SOTA)", "experiments/Exp_RepViT_M0_9_BalancedSoftmax"),
+
+    # --- Histórico de Perdas MobileNetV4 (Legado) ---
+    ("MobileNetV4 + Focal Loss (Legado)", "experiments/Exp_Loss_Focal_MobileNetV4"),
+    ("MobileNetV4 + BalancedSoftmax (Legado)", "experiments/Exp_MobileNetV4_Small_BalancedSoftmax"),
 ]
 
 
@@ -145,7 +162,8 @@ def main():
     plot_df = df.dropna(subset=["Val Macro F1 (%)"]).copy()
     if not plot_df.empty:
         plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
-        fig, ax = plt.subplots(figsize=(11, 6))
+        fig_h = max(6.0, len(plot_df) * 0.45)
+        fig, ax = plt.subplots(figsize=(11, fig_h))
         
         # Cores destacando o campeão RepViT
         colors = []

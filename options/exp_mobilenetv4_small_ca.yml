@@ -1,0 +1,86 @@
+name: Exp_MobileNetV4_Small_CoordinateAttention
+model_type: ClassificationModel
+num_gpu: 1
+
+datasets:
+  train:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video_sanitized/train
+    image_size: 224
+    grayscale: false
+    augment: true
+    randaugment_magnitude: 7
+    randaugment_ops: 2
+    batch_size_per_gpu: 128
+    num_worker_per_gpu: 4
+  val:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video_sanitized/val
+    image_size: 224
+    grayscale: false
+    augment: false
+    batch_size_per_gpu: 128
+    num_worker_per_gpu: 4
+  test:
+    type: ImageFolderClassificationDataset
+    root: datasets/generated/animals_video_sanitized/test
+    image_size: 224
+    grayscale: false
+    augment: false
+    batch_size_per_gpu: 128
+    num_worker_per_gpu: 4
+
+network_g:
+  type: TimmCoordinateAttentionClassifier
+  architecture: mobilenetv4_conv_small.e2400_r224_in1k
+  num_classes: 16
+  pretrained: true
+  freeze_backbone: false
+  dropout: 0.20
+  reduction: 16
+
+train:
+  two_stage:
+    enabled: true
+    freeze_epochs: 2
+    head_lr: !!float 2e-3
+  differential_lr:
+    enabled: true
+    backbone_shallow_lr: !!float 3.0e-5
+    backbone_deep_lr: !!float 1.0e-4
+    head_lr: !!float 1.0e-3
+  weight_decay: !!float 1e-2
+  ema:
+    enabled: true
+    decay: 0.999
+  loss:
+    type: CrossEntropyLoss
+    label_smoothing: !!float 0.1
+  total_epochs: 20
+  val_freq: 1
+  save_checkpoint_freq: 5
+
+  optim_g:
+    type: AdamW
+    lr: !!float 1.0e-3
+    weight_decay: !!float 1.0e-2
+    betas: [0.9, 0.999]
+
+  scheduler:
+    type: CosineAnnealingLR
+    T_max: 20
+    eta_min: !!float 1.0e-6
+
+val:
+  val_freq: 1
+  save_img: false
+  metrics:
+    accuracy:
+      type: calculate_accuracy
+    macro_f1:
+      type: calculate_macro_f1
+
+logger:
+  print_freq: 20
+  save_checkpoint_freq: 5
+  use_tb_logger: true

@@ -29,13 +29,22 @@ class TwoStageCropClassifier(nn.Module):
         self.crop_margin = float(crop_margin)
         self.conf_thresh = float(conf_thresh)
 
-        # 1. Carregar classificador base (ResNet18)
-        self.classifier = models.get_model(classifier_arch, weights=weights)
-        in_features = self.classifier.fc.in_features
-        self.classifier.fc = nn.Sequential(
-            nn.Dropout(p=dropout) if dropout > 0 else nn.Identity(),
-            nn.Linear(in_features, num_classes),
-        )
+        # 1. Carregar classificador base (ResNet18 ou modelos móveis Timm)
+        if classifier_arch in ['resnet18', 'resnet34', 'resnet50']:
+            self.classifier = models.get_model(classifier_arch, weights=weights)
+            in_features = self.classifier.fc.in_features
+            self.classifier.fc = nn.Sequential(
+                nn.Dropout(p=dropout) if dropout > 0 else nn.Identity(),
+                nn.Linear(in_features, num_classes),
+            )
+        else:
+            import timm
+            self.classifier = timm.create_model(
+                classifier_arch,
+                pretrained=(weights == 'DEFAULT'),
+                num_classes=num_classes,
+                drop_rate=float(dropout),
+            )
 
         # 2. Inicializar detector YOLO em container seguro fora de _modules do PyTorch
         # (YOLO herda de nn.Module mas NÃO deve ser registrado como submódulo para evitar
