@@ -1,0 +1,117 @@
+{
+  "experiment_name": "Exp_RepViT_M0_9_SAM2_Crops",
+  "checkpoint": "/home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp_RepViT_M0_9_SAM2_Crops/models/best_macro_f1.pth",
+  "test_loss": 1.559201757113139,
+  "test_accuracy": 0.5942408376963351,
+  "metrics_per_class": {
+    "anta": {
+      "precision": 0.35714285714285715,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.5,
+      "support": 12.0
+    },
+    "arara": {
+      "precision": 0.6,
+      "recall": 0.8,
+      "f1-score": 0.6857142857142857,
+      "support": 15.0
+    },
+    "ariranha": {
+      "precision": 0.4,
+      "recall": 0.16666666666666666,
+      "f1-score": 0.23529411764705882,
+      "support": 12.0
+    },
+    "boto": {
+      "precision": 0.7058823529411765,
+      "recall": 0.75,
+      "f1-score": 0.7272727272727273,
+      "support": 16.0
+    },
+    "capivara": {
+      "precision": 0.5714285714285714,
+      "recall": 0.47058823529411764,
+      "f1-score": 0.5161290322580645,
+      "support": 17.0
+    },
+    "fundo_sem_animal": {
+      "precision": 0.3611111111111111,
+      "recall": 0.8666666666666667,
+      "f1-score": 0.5098039215686274,
+      "support": 15.0
+    },
+    "gafanhoto": {
+      "precision": 0.17647058823529413,
+      "recall": 0.42857142857142855,
+      "f1-score": 0.25,
+      "support": 7.0
+    },
+    "harpia": {
+      "precision": 0.9545454545454546,
+      "recall": 0.3387096774193548,
+      "f1-score": 0.5,
+      "support": 62.0
+    },
+    "jacare": {
+      "precision": 0.8,
+      "recall": 0.3870967741935484,
+      "f1-score": 0.5217391304347826,
+      "support": 31.0
+    },
+    "jaraqui": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1-score": 0.8571428571428571,
+      "support": 18.0
+    },
+    "onca": {
+      "precision": 0.8947368421052632,
+      "recall": 0.9444444444444444,
+      "f1-score": 0.918918918918919,
+      "support": 36.0
+    },
+    "pirarucu": {
+      "precision": 1.0,
+      "recall": 0.6285714285714286,
+      "f1-score": 0.7719298245614035,
+      "support": 35.0
+    },
+    "sapo": {
+      "precision": 0.8571428571428571,
+      "recall": 0.7692307692307693,
+      "f1-score": 0.8108108108108109,
+      "support": 39.0
+    },
+    "sucuri": {
+      "precision": 0.3050847457627119,
+      "recall": 0.9473684210526315,
+      "f1-score": 0.46153846153846156,
+      "support": 19.0
+    },
+    "surubim": {
+      "precision": 0.4090909090909091,
+      "recall": 0.4090909090909091,
+      "f1-score": 0.4090909090909091,
+      "support": 22.0
+    },
+    "tamandua": {
+      "precision": 0.375,
+      "recall": 0.11538461538461539,
+      "f1-score": 0.17647058823529413,
+      "support": 26.0
+    },
+    "accuracy": 0.5942408376963351,
+    "macro avg": {
+      "precision": 0.5948522680941379,
+      "recall": 0.6159827106199947,
+      "f1-score": 0.5532409740746376,
+      "support": 382.0
+    },
+    "weighted avg": {
+      "precision": 0.7026534149922596,
+      "recall": 0.5942408376963351,
+      "f1-score": 0.5905682115275106,
+      "support": 382.0
+    }
+  }
+}

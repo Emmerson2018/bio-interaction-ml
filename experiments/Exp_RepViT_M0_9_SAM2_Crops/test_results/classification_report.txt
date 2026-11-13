@@ -1,0 +1,27 @@
+Experiment: Exp_RepViT_M0_9_SAM2_Crops
+Checkpoint: /home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp_RepViT_M0_9_SAM2_Crops/models/best_macro_f1.pth
+Test Loss: 1.5592
+Test Accuracy: 59.42%
+
+                  precision    recall  f1-score   support
+
+            anta       0.36      0.83      0.50        12
+           arara       0.60      0.80      0.69        15
+        ariranha       0.40      0.17      0.24        12
+            boto       0.71      0.75      0.73        16
+        capivara       0.57      0.47      0.52        17
+fundo_sem_animal       0.36      0.87      0.51        15
+       gafanhoto       0.18      0.43      0.25         7
+          harpia       0.95      0.34      0.50        62
+          jacare       0.80      0.39      0.52        31
+         jaraqui       0.75      1.00      0.86        18
+            onca       0.89      0.94      0.92        36
+        pirarucu       1.00      0.63      0.77        35
+            sapo       0.86      0.77      0.81        39
+          sucuri       0.31      0.95      0.46        19
+         surubim       0.41      0.41      0.41        22
+        tamandua       0.38      0.12      0.18        26
+
+        accuracy                           0.59       382
+       macro avg       0.59      0.62      0.55       382
+    weighted avg       0.70      0.59      0.59       382
