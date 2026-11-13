@@ -90,8 +90,24 @@ def run_video_committee(
     opt = parse_options(opt_path, is_train=False)
     num_classes = int(opt['network_g'].get('num_classes', 16))
     model = build_model(opt)
-    model.load_network(model.net_g, checkpoint_path, strict=False)
-    model.net_g.eval()
+    net = getattr(model, 'net', getattr(model, 'net_g', None))
+    if net is None:
+        raise AttributeError("O modelo construído não possui atributo 'net' ou 'net_g'.")
+
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    state_dict = checkpoint.get('network_ema' if 'network_ema' in checkpoint else 'network', checkpoint)
+    cleaned_state_dict = {}
+    for k, v in state_dict.items():
+        if k.startswith('module.'):
+            cleaned_state_dict[k[7:]] = v
+        else:
+            cleaned_state_dict[k] = v
+    load_res = net.load_state_dict(cleaned_state_dict, strict=False)
+    if load_res.missing_keys:
+        print(f"[Aviso] Chaves ausentes no state_dict: {load_res.missing_keys}")
+    if load_res.unexpected_keys:
+        print(f"[Info] Chaves ignoradas no state_dict: {len(load_res.unexpected_keys)}")
+    net.eval()
 
     # 2. Carregar SAM 2 se requisitado
     sam_model = None
@@ -110,7 +126,15 @@ def run_video_committee(
     classes = manifest.get('classes', sorted(list(set(r['class_name'] for r in manifest['records']))))
     class_to_idx = {c: i for i, c in enumerate(classes)}
 
+    manifest_dir = Path(manifest_path).parent
     test_records = [r for r in manifest['records'] if r.get('split') == 'test']
+    records_by_video = {}
+    for r in test_records:
+        k = f"{r['class_name']}/{r['video_name']}"
+        if k not in records_by_video:
+            records_by_video[k] = []
+        records_by_video[k].append(r)
+
     unique_test_videos = {}
     for r in test_records:
         key = f"{r['class_name']}/{r['video_name']}"
@@ -132,19 +156,34 @@ def run_video_committee(
     num_abstained = 0
 
     root_videos = Path('assets/videos')
+    num_samples = int(round(target_fps * window_sec))
 
     for key, vinfo in tqdm(unique_test_videos.items(), desc="Avaliando vídeos de teste"):
         v_path = root_videos / key
-        if not v_path.exists():
+        frames = []
+        if v_path.exists():
+            # Extrair snippet de 2 segundos a 3 FPS do vídeo bruto
+            frames = extract_video_snippet_frames(v_path, target_fps=target_fps, window_sec=window_sec)
+
+        # Fallback resiliente: carregar a sequência de quadros do conjunto de teste do dataset
+        # (indispensável no Google Colab, onde os 3.1 GB de vídeos .mp4 brutos não são baixados)
+        if not frames and key in records_by_video:
+            v_recs = sorted(records_by_video[key], key=lambda x: x.get('timestamp_sec', 0.0))
+            for r in v_recs:
+                f_path = manifest_dir / r['path']
+                if f_path.exists():
+                    img = cv2.imread(str(f_path))
+                    if img is not None:
+                        frames.append(img)
+            if len(frames) > num_samples:
+                step = max(1, len(frames) // num_samples)
+                frames = frames[::step][:num_samples]
+
+        if not frames:
             continue
 
         true_cls_idx = vinfo['class_idx']
         true_cls_name = vinfo['class_name']
-
-        # Extrair snippet de 2 segundos a 3 FPS
-        frames = extract_video_snippet_frames(v_path, target_fps=target_fps, window_sec=window_sec)
-        if not frames:
-            continue
 
         prompt_info = annotations.get(key, {})
         has_animal = prompt_info.get('has_animal', True)
@@ -180,7 +219,7 @@ def run_video_committee(
             # Inferência do Classificador
             input_tensor = preprocess_tensor(crop_bgr, target_size=224, device=device)
             with torch.no_grad():
-                logits = model.net_g(input_tensor)
+                logits = net(input_tensor)
                 probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
 
             pred_idx = int(np.argmax(probs))
