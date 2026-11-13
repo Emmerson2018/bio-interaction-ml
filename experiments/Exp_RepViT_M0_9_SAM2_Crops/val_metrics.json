@@ -1,0 +1,7 @@
+{
+  "experiment": "Exp_RepViT_M0_9_SAM2_Crops",
+  "epoch": 18,
+  "accuracy": 0.733,
+  "macro_f1": 0.6823,
+  "balanced_acc": 0.7346
+}

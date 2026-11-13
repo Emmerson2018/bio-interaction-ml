@@ -10,6 +10,7 @@ import json
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 EXP_DIRS = [
     ("Exp 1: ResNet18 Baseline", "experiments/Exp1_ResNet18_Baseline_Sanitized"),
@@ -140,19 +141,40 @@ def main():
     else:
         print("Nenhum relatório de comitê temporal encontrado localmente ainda.")
 
-    # Gerar Gráfico de Comparação
+    # Gerar Gráfico de Comparação Profissional
     plot_df = df.dropna(subset=["Val Macro F1 (%)"]).copy()
     if not plot_df.empty:
-        plt.figure(figsize=(10, 5))
-        plt.barh(plot_df["Experimento"], plot_df["Val Macro F1 (%)"], color="#2b5c8f")
-        plt.xlabel("Macro F1 (%)")
-        plt.title("Comparativo de Desempenho Científico — BioEcoInt")
-        plt.xlim(0, 100)
-        for index, value in enumerate(plot_df["Val Macro F1 (%)"]):
-            plt.text(value + 1, index, f"{value}%", va="center", fontweight="bold")
+        plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
+        fig, ax = plt.subplots(figsize=(11, 6))
+        
+        # Cores destacando o campeão RepViT
+        colors = []
+        for exp in plot_df["Experimento"]:
+            if "RepViT" in exp:
+                colors.append("#2e7d32")  # Verde floresta para RepViT SOTA
+            elif "MobileNetV4" in exp:
+                colors.append("#1976d2")  # Azul para MobileNetV4
+            else:
+                colors.append("#78909c")  # Cinza para baselines ResNet18
+                
+        bars = ax.barh(plot_df["Experimento"], plot_df["Val Macro F1 (%)"], color=colors, edgecolor="black", linewidth=0.8, height=0.65)
+        ax.set_xlabel("Validation Macro F1 (%)", fontsize=12, fontweight="bold")
+        ax.set_title("🌿 Comparativo SOTA de Validação — BioEcoInt Benchmark", fontsize=14, fontweight="bold", pad=15)
+        ax.set_xlim(0, 100)
+        
+        # Anotações nas barras
+        for bar in bars:
+            width = bar.get_width()
+            y = bar.get_y() + bar.get_height() / 2
+            ax.text(width + 1.2, y, f"{width:.2f}%", va="center", ha="left", fontsize=11, fontweight="bold", color="#1a1a1a")
+            
+        # Linha de benchmark 80%
+        ax.axvline(80.0, color="#d32f2f", linestyle="--", alpha=0.7, linewidth=1.2, label="Patamar SOTA 80%")
+        ax.legend(loc="lower right", frameon=True)
+        
         plt.tight_layout()
         plot_path = "experiments/comparativo_geral_macro_f1.png"
-        plt.savefig(plot_path, dpi=200)
+        plt.savefig(plot_path, dpi=300)
         print(f"✅ Gráfico comparativo gerado em: {plot_path}")
     print("\nConsolidação concluída com sucesso!")
 

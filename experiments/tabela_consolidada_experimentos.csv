@@ -5,6 +5,6 @@ Exp 3: ResNet18 Coord. Attention,Exp3_ResNet18_CoordinateAttention,62.22,60.04,7
 Exp 4A: MobileNetV4 CE Loss,Exp_Loss_CE_MobileNetV4,,,69.86,train.log
 Exp 4B: MobileNetV4 Focal Loss,Exp_Loss_Focal_MobileNetV4,,,45.77,train.log
 Exp 4C: MobileNetV4 BalancedSoftmax,Exp_MobileNetV4_Small_BalancedSoftmax,,,66.85,train.log
-Exp 5: RepViT-M0.9 BalancedSoftmax,Exp_RepViT_M0_9_BalancedSoftmax,,,43.0,train.log
-Exp 6: RepViT-M0.9 SAM2 Crops,Exp_RepViT_M0_9_SAM2_Crops,59.42,55.32,,test_summary.json
+Exp 5: RepViT-M0.9 BalancedSoftmax,Exp_RepViT_M0_9_BalancedSoftmax,62.3,59.23,80.26,test_summary.json
+Exp 6: RepViT-M0.9 SAM2 Crops,Exp_RepViT_M0_9_SAM2_Crops,59.42,55.32,68.23,test_summary.json
 Exp 7: MobileNetV4 SAM2 Crops,Exp_MobileNetV4_SAM2_Crops,,,,Pendente

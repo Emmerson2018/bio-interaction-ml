@@ -1,0 +1,9 @@
+{
+  "experiment": "Exp_RepViT_M0_9_BalancedSoftmax",
+  "epoch": 12,
+  "macro_f1": 0.8026,
+  "best_macro_f1": 0.8026,
+  "accuracy": 0.8016,
+  "balanced_acc": 0.8629,
+  "status": "SOTA Champion Validated"
+}
