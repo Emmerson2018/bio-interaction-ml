@@ -48,6 +48,7 @@ base-test = "base_tool.test:main"
 base-annotate-anchors = "base_tool.tools.annotate_anchors:main"
 base-generate-sam2-crops = "base_tool.synthetic.generate_sam2_crops_dataset:main"
 base-test-committee = "base_tool.test_video_committee:main"
+base-review-sam2 = "base_tool.tools.review_sam2_segmentation:main"
 
 [project.optional-dependencies]
 synthetic = [
