@@ -17,6 +17,7 @@ from tqdm import tqdm
 from ultralytics import SAM
 
 from base_tool.models import build_model
+from base_tool.models.exemplar_verifier import ExemplarVerifier
 from base_tool.synthetic.generate_sam2_crops_dataset import extract_center_crop, extract_square_crop
 from base_tool.utils.options import parse_options
 
@@ -75,13 +76,16 @@ def run_video_committee(
     consensus_threshold: float = 0.70,
     target_fps: float = 3.0,
     window_sec: float = 2.0,
+    sim_threshold: float = 0.50,
     output_report_path: Optional[str] = None,
 ):
     print("==========================================")
     print("Iniciando Benchmark de Avaliação em Vídeo & Comitê Temporal")
-    print(f"Modo: {'SAM 2 Tap-to-Crop + Classificador' if use_sam2 else 'Single-Stage Classificador Direto'}")
+    print(f"Modo: {'SAM 2 Tap-to-Crop + Classificador (com Exemplar Matching)' if use_sam2 else 'Single-Stage Classificador Direto'}")
     print(f"Janela temporal: {window_sec}s @ {target_fps} FPS (Total: ~{int(round(target_fps * window_sec))} quadros)")
     print(f"Limiar de Consenso: {consensus_threshold * 100:.0f}%")
+    if use_sam2:
+        print(f"Limiar de Similaridade Anti-Oclusão: {sim_threshold:.2f}")
     print("==========================================\n")
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -109,11 +113,14 @@ def run_video_committee(
         print(f"[Info] Chaves ignoradas no state_dict: {len(load_res.unexpected_keys)}")
     net.eval()
 
-    # 2. Carregar SAM 2 se requisitado
+    # 2. Carregar SAM 2 e ExemplarVerifier se requisitado
     sam_model = None
+    verifier = None
     if use_sam2:
         print(f"Carregando modelo SAM 2: '{sam_model_path}'...")
         sam_model = SAM(sam_model_path)
+        verifier = ExemplarVerifier(device=str(device), sim_threshold=sim_threshold)
+        print(f"✓ ExemplarVerifier inicializado para descarte de oclusões (S >= {sim_threshold})")
 
     # 3. Ler Manifesto e Anotações para isolar os vídeos de TESTE
     with open(manifest_path, 'r', encoding='utf-8') as f:
@@ -189,6 +196,9 @@ def run_video_committee(
         has_animal = prompt_info.get('has_animal', True)
         point_norm = prompt_info.get('point_norm')
 
+        if use_sam2 and verifier is not None:
+            verifier.reset()
+
         last_box = None
         frame_preds = []
         frame_confs = []
@@ -197,22 +207,40 @@ def run_video_committee(
             h_f, w_f = frame_bgr.shape[:2]
 
             if use_sam2 and sam_model is not None and has_animal and point_norm:
-                is_first = (last_box is None)
-                if is_first:
-                    pt_px = [int(round(point_norm[0] * w_f)), int(round(point_norm[1] * h_f))]
+                pt_px = [int(round(point_norm[0] * w_f)), int(round(point_norm[1] * h_f))]
+                if verifier is not None and not verifier.has_exemplar():
                     res = sam_model(frame_bgr, points=[pt_px], labels=[1], verbose=False)
-                else:
+                elif last_box is not None:
                     res = sam_model(frame_bgr, bboxes=[last_box], verbose=False)
+                else:
+                    # Sonda de re-aquisição na âncora nominal após perda/descarte
+                    res = sam_model(frame_bgr, points=[pt_px], labels=[1], verbose=False)
 
                 if len(res) > 0 and res[0].boxes is not None and len(res[0].boxes.xyxy) > 0:
                     detected_box = res[0].boxes.xyxy[0].cpu().tolist()
-                    last_box = detected_box
-                elif last_box is not None:
-                    detected_box = last_box
-                else:
-                    detected_box = [w_f * 0.2, h_f * 0.2, w_f * 0.8, h_f * 0.8]
+                    mask_cand = res[0].masks.data[0].cpu().numpy().astype(np.uint8) if res[0].masks is not None else None
+                    cand_crop, _ = extract_square_crop(frame_bgr, detected_box, margin=0.15, target_size=224)
 
-                crop_bgr, _ = extract_square_crop(frame_bgr, detected_box, margin=0.15, target_size=224)
+                    if verifier is not None:
+                        if not verifier.has_exemplar():
+                            verifier.set_exemplar(cand_crop, mask_cand)
+                            crop_bgr = cand_crop
+                            last_box = detected_box
+                        else:
+                            ver_res = verifier.verify_candidate(cand_crop, detected_box, (h_f, w_f), mask_cand)
+                            if ver_res['is_valid']:
+                                crop_bgr = cand_crop
+                                last_box = detected_box
+                            else:
+                                # Oclusão detectada -> descarta este frame da votação do comitê!
+                                last_box = None
+                                continue
+                    else:
+                        crop_bgr = cand_crop
+                        last_box = detected_box
+                else:
+                    last_box = None
+                    continue
             else:
                 crop_bgr = extract_center_crop(frame_bgr, target_size=224)
 
@@ -233,6 +261,24 @@ def run_video_committee(
 
         # Decisão do Comitê Temporal
         total_votes = len(frame_preds)
+        if total_votes == 0:
+            num_abstained += 1
+            decision_status = "ABSTENÇÃO_TOTAL_OCLUSAO"
+            final_pred_name = "ABSTAIN"
+            is_correct = False
+            committee_results.append({
+                'video_key': key,
+                'true_class': true_cls_name,
+                'predicted_class': final_pred_name,
+                'status': decision_status,
+                'consensus_ratio': 0.0,
+                'total_frames': 0,
+                'votes_breakdown': {},
+                'mean_frame_confidence': 0.0,
+                'correct': False,
+            })
+            continue
+
         vote_counts = Counter(frame_preds)
         top_cls, top_count = vote_counts.most_common(1)[0]
         consensus_ratio = top_count / total_votes
@@ -325,6 +371,7 @@ def main():
     parser.add_argument('--threshold', type=float, default=0.70, help="Limiar de votos mínimos do comitê (default: 0.70).")
     parser.add_argument('--fps', type=float, default=3.0, help="Taxa de amostragem no vídeo (default: 3.0 FPS).")
     parser.add_argument('--duration', type=float, default=2.0, help="Duração da janela em segundos (default: 2.0s).")
+    parser.add_argument('--sim-thresh', type=float, default=0.50, help="Limiar de similaridade para rejeição de oclusão (default: 0.50).")
     parser.add_argument('--output', default="experiments/video_committee_report.json", help="Arquivo JSON de saída.")
     args = parser.parse_args()
 
@@ -338,6 +385,7 @@ def main():
         consensus_threshold=args.threshold,
         target_fps=args.fps,
         window_sec=args.duration,
+        sim_threshold=args.sim_thresh,
         output_report_path=args.output,
     )
 

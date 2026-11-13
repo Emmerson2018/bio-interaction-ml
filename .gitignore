@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+*.log
 # Heavy ML weights and binary artifacts (Managed by DVC)
 *.pth
 *.pt
