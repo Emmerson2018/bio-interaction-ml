@@ -34,6 +34,7 @@ def main():
     parser.add_argument('--output-dir', default=None, help='Output directory for exported ONNX and TFLite files.')
     parser.add_argument('--static-shape', action='store_true', default=True, help='Freeze static batch=1 shape for mobile delegates.')
     parser.add_argument('--enable-int8', action='store_true', default=True, help='Generate INT8 quantized TFLite model.')
+    parser.add_argument('--format', default='all', choices=['all', 'onnx', 'tflite'], help='Export format (default: all).')
     args = parser.parse_args()
 
     root_path = Path(__file__).resolve().parents[1]

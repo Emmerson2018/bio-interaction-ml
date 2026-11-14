@@ -5,12 +5,16 @@ Gera tabela Markdown, CSV consolidado e gráfico de barras comparativo.
 """
 
 import os
+# Neutralizar backend herdado do IPython / Colab para evitar ValueError
+os.environ['MPLBACKEND'] = 'Agg'
 import glob
 import json
 import re
-import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 EXP_DIRS = [
     # --- Família 1: ResNet-18 ---
@@ -25,11 +29,11 @@ EXP_DIRS = [
     ("MobileNetV4 + Coord. Attention", "experiments/Exp_MobileNetV4_Small_CoordinateAttention"),
     ("MobileNetV4 + SAM2 Crops", "experiments/Exp_MobileNetV4_SAM2_Crops"),
 
-    # --- Família 3: RepViT-M0.9 ---
-    ("RepViT-M0.9 Baseline (CE)", "experiments/Exp_RepViT_M0_9_Baseline"),
-    ("RepViT-M0.9 + YOLO Crop", "experiments/Exp_RepViT_M0_9_YOLOCrop"),
-    ("RepViT-M0.9 + Coord. Attention", "experiments/Exp_RepViT_M0_9_CoordinateAttention"),
-    ("RepViT-M0.9 + SAM2 Crops", "experiments/Exp_RepViT_M0_9_SAM2_Crops"),
+    # --- Família 3: RepViT-M0.9 (Balanced Softmax) ---
+    ("RepViT-M0.9 Baseline (BS)", "experiments/Exp_RepViT_M0_9_Baseline"),
+    ("RepViT-M0.9 + YOLO Crop (BS)", "experiments/Exp_RepViT_M0_9_YOLOCrop"),
+    ("RepViT-M0.9 + Coord. Attention (BS)", "experiments/Exp_RepViT_M0_9_CoordinateAttention"),
+    ("RepViT-M0.9 + SAM2 Crops (BS)", "experiments/Exp_RepViT_M0_9_SAM2_Crops"),
 
     # --- Estudo de Funções de Perda no Campeão RepViT ---
     ("Exp 4A: RepViT + Cross-Entropy", "experiments/Exp_Loss_CE_RepViT"),

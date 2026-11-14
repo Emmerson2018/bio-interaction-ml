@@ -3,7 +3,7 @@ ResNet18 Baseline,Exp1_ResNet18_Baseline_Sanitized,52.14,52.64,68.77,test_summar
 ResNet18 + YOLO Crop,Exp2_ResNet18_YOLO_Crop,71.79,70.29,69.5,test_summary.json
 ResNet18 + Coord. Attention,Exp3_ResNet18_CoordinateAttention,62.22,60.04,72.43,test_summary.json
 MobileNetV4 + SAM2 Crops,Exp_MobileNetV4_SAM2_Crops,,,,Pendente
-RepViT-M0.9 + SAM2 Crops,Exp_RepViT_M0_9_SAM2_Crops,59.42,55.32,68.23,test_summary.json
+RepViT-M0.9 + SAM2 Crops (BS),Exp_RepViT_M0_9_SAM2_Crops,59.42,55.32,68.23,test_summary.json
 Exp 4C: RepViT + BalancedSoftmax (SOTA),Exp_RepViT_M0_9_BalancedSoftmax,62.3,59.23,80.26,test_summary.json
 MobileNetV4 + Focal Loss (Legado),Exp_Loss_Focal_MobileNetV4,,,45.77,train.log
 MobileNetV4 + BalancedSoftmax (Legado),Exp_MobileNetV4_Small_BalancedSoftmax,,,66.85,train.log

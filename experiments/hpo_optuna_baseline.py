@@ -85,7 +85,7 @@ def objective(trial, base_opt, num_epochs=6):
 def main():
     parser = argparse.ArgumentParser(description='HPO Multi-fidelidade para ResNet18 Baseline.')
     parser.add_argument('-opt', type=str, default='options/exp1_resnet18_baseline.yml')
-    parser.add_argument('--n-trials', type=int, default=15, help='Número total de trials no estudo.')
+    parser.add_argument('--n-trials', '--trials', dest='n_trials', type=int, default=15, help='Número total de trials no estudo.')
     parser.add_argument('--epochs-per-trial', type=int, default=5, help='Número de épocas por trial na busca rápida.')
     args = parser.parse_args()
 

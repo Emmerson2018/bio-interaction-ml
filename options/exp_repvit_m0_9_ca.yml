@@ -54,7 +54,8 @@ train:
     enabled: true
     decay: 0.999
   loss:
-    type: CrossEntropyLoss
+    type: BalancedSoftmax
+    tau: !!float 1.0
     label_smoothing: !!float 0.1
   total_epochs: 20
   val_freq: 1

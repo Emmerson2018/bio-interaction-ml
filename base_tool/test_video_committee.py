@@ -389,11 +389,11 @@ def main():
     parser.add_argument('--annotations', default="assets/annotations/video_point_prompts.json", help="Anotações de âncora.")
     parser.add_argument('--sam-model', default="sam2_t.pt", help="Pesos do SAM 2.")
     parser.add_argument('--use-sam2', action='store_true', help="Ativar segmentação SAM 2 por frame.")
-    parser.add_argument('--threshold', type=float, default=0.70, help="Limiar de votos mínimos do comitê (default: 0.70).")
-    parser.add_argument('--fps', type=float, default=3.0, help="Taxa de amostragem no vídeo (default: 3.0 FPS).")
-    parser.add_argument('--duration', type=float, default=2.0, help="Duração da janela em segundos (default: 2.0s).")
+    parser.add_argument('--threshold', '--consensus-thresh', dest='threshold', type=float, default=0.70, help="Limiar de votos mínimos do comitê (default: 0.70).")
+    parser.add_argument('--fps', '--target-fps', dest='fps', type=float, default=3.0, help="Taxa de amostragem no vídeo (default: 3.0 FPS).")
+    parser.add_argument('--duration', '--window-sec', dest='duration', type=float, default=2.0, help="Duração da janela em segundos (default: 2.0s).")
     parser.add_argument('--sim-thresh', type=float, default=0.50, help="Limiar de similaridade para rejeição de oclusão (default: 0.50).")
-    parser.add_argument('--output', default="experiments/video_committee_report.json", help="Arquivo JSON de saída.")
+    parser.add_argument('--output', '--output-report', dest='output', default="experiments/video_committee_report.json", help="Arquivo JSON de saída.")
     args = parser.parse_args()
 
     run_video_committee(

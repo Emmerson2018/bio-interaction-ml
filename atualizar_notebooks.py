@@ -179,22 +179,22 @@ Avaliação da arquitetura móvel convolucional moderna (3.8M parâmetros) nas 4
     cells.append(md_cell("#### Exp 2.4: MobileNetV4-Small + SAM 2 Crops (Segmentação por Instância)"))
     cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_sam2_crops.yml"))
 
-    # 8. FAMÍLIA 3: RepViT-M0.9 (Campeão SOTA)
+    # 8. FAMÍLIA 3: RepViT-M0.9 (Campeão SOTA com Balanced Softmax)
     cells.append(md_cell("""
 ---
-## 🚀 FAMÍLIA 3: RepViT-M0.9 (Vision Transformer Reparametrizável)
-Avaliação da arquitetura campeã (4.7M parâmetros) combinando atenção global de ViT com reparametrização estrutural mobile.
+## 🚀 FAMÍLIA 3: RepViT-M0.9 (Vision Transformer Reparametrizável + Balanced Softmax)
+Avaliação da arquitetura campeã (4.7M parâmetros) combinando atenção global de ViT com reparametrização estrutural mobile e loss Balanced Softmax em todas as variantes.
 """))
-    cells.append(md_cell("#### Exp 3.1: RepViT-M0.9 Baseline (Sanitizado + Cross-Entropy / Exp 4A)"))
+    cells.append(md_cell("#### Exp 3.1: RepViT-M0.9 Baseline Sanitizado (Balanced Softmax)"))
     cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_baseline.yml"))
 
-    cells.append(md_cell("#### Exp 3.2: RepViT-M0.9 + YOLO Crops (Two-Stage)"))
+    cells.append(md_cell("#### Exp 3.2: RepViT-M0.9 + YOLO Crops (Two-Stage + Balanced Softmax)"))
     cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_yolo_crop.yml"))
 
-    cells.append(md_cell("#### Exp 3.3: RepViT-M0.9 + Coordinate Attention (CA)"))
+    cells.append(md_cell("#### Exp 3.3: RepViT-M0.9 + Coordinate Attention (CA + Balanced Softmax)"))
     cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_ca.yml"))
 
-    cells.append(md_cell("#### Exp 3.4: RepViT-M0.9 + SAM 2 Crops (Recortes Limpos Exemplar V2)"))
+    cells.append(md_cell("#### Exp 3.4: RepViT-M0.9 + SAM 2 Crops (Recortes Limpos Exemplar V2 + Balanced Softmax)"))
     cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_sam2_crops.yml"))
 
     # 9. ESTUDO DE PERDAS NO REPVIT
@@ -216,14 +216,20 @@ Análise iso-condicional do impacto do desbalanceamento severo na modelagem de d
     cells.append(md_cell("""
 ---
 ## 📹 AVALIAÇÃO ESTÉRIL & COMITÊ TEMPORAL EM VÍDEO (2s @ 3 FPS)
-Executa teste estéril e simula o comitê temporal de inferência contínua com consenso >= 70% e abstenção protetora.
+Executa teste estéril e simula o comitê temporal de inferência contínua com consenso >= 70% e abstenção protetora para o RepViT Balanced Softmax e RepViT SAM 2 Crops.
 """))
     cells.append(code_cell("""
-# 1. Avaliação Estéril do Campeão RepViT SAM 2 Crops
+# 1. Avaliação Estéril do Campeão RepViT Balanced Softmax (Exp 4C / SOTA Geral)
+!uv run base-test -opt options/exp_repvit_m0_9.yml --checkpoint experiments/Exp_RepViT_M0_9_BalancedSoftmax/models/best_macro_f1.pth
+
+# 2. Comitê Temporal do RepViT Balanced Softmax em Vídeo
+!uv run base-test-committee -opt options/exp_repvit_m0_9.yml -c experiments/Exp_RepViT_M0_9_BalancedSoftmax/models/best_macro_f1.pth --threshold 0.70 --fps 3.0 --duration 2.0 --output experiments/Exp_RepViT_M0_9_BalancedSoftmax/committee_report.json
+
+# 3. Avaliação Estéril do Campeão RepViT SAM 2 Crops
 !uv run base-test -opt options/exp_repvit_m0_9_sam2_crops.yml --checkpoint experiments/Exp_RepViT_M0_9_SAM2_Crops/models/best_macro_f1.pth
 
-# 2. Comitê Temporal nos Vídeos de Teste do RepViT SAM 2 Crops
-!uv run base-test-committee -opt options/exp_repvit_m0_9_sam2_crops.yml --checkpoint experiments/Exp_RepViT_M0_9_SAM2_Crops/models/best_macro_f1.pth --window-sec 2.0 --target-fps 3.0 --consensus-thresh 0.70 --output-report experiments/Exp_RepViT_M0_9_SAM2_Crops/committee_sam2_report.json
+# 4. Comitê Temporal nos Vídeos de Teste do RepViT SAM 2 Crops (com SAM 2)
+!uv run base-test-committee -opt options/exp_repvit_m0_9_sam2_crops.yml -c experiments/Exp_RepViT_M0_9_SAM2_Crops/models/best_macro_f1.pth --use-sam2 --threshold 0.70 --fps 3.0 --duration 2.0 --output experiments/Exp_RepViT_M0_9_SAM2_Crops/committee_sam2_report.json
 """))
 
     # 11. HPO Optuna
@@ -233,7 +239,7 @@ Executa teste estéril e simula o comitê temporal de inferência contínua com 
 Busca bayesiana TPE com poda precoce focada no RepViT-M0.9.
 """))
     cells.append(code_cell("""
-!uv run python experiments/hpo_optuna_baseline.py -opt options/exp_repvit_m0_9.yml --trials 15 --epochs-per-trial 8
+!uv run python experiments/hpo_optuna_baseline.py -opt options/exp_repvit_m0_9.yml --n-trials 15 --epochs-per-trial 8
 """))
 
     # 12. Exportação Mobile
@@ -256,7 +262,7 @@ Converte os modelos campeões para TFLite FP32, FP16 e INT8 calibrado (PTQ) via 
 ## 📊 CONSOLIDAÇÃO AUTOMÁTICA DE RESULTADOS & GRÁFICOS SOTA
 Compila as métricas de validação, teste estéril e comitê temporal de todos os experimentos em tabela e gráfico comparativo.
 """))
-    cells.append(code_cell("!uv run python consolidar_resultados_finais.py"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run python consolidar_resultados_finais.py"))
 
     # 14. Versionamento DVC e Git Push Seguro
     cells.append(md_cell("""
