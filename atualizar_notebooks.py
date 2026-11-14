@@ -82,94 +82,44 @@ else:
     # 5. Drive & DVC
     cells.append(md_cell("### 5. Montagem do Google Drive & Sincronização dos Datasets via DVC"))
     cells.append(code_cell("""
-from google.colab import drive
-import os, glob, shutil, subprocess, json
+from google.colab import drive, files
+import os, shutil, subprocess, json
 
 # 1. Montagem do Google Drive
 drive.mount("/content/drive")
 
-# 2. Configuração de Credenciais Headless para PyDrive2 / DVC
-# As credenciais são carregadas dinamicamente sem segredos hardcoded no repositório.
-found_creds = False
-temp_creds_path = "/tmp/dvc_temp_default.json"
+# 2. Upload Obrigatório das Credenciais Headless do DVC
+print("📤 Faça o upload do arquivo 'default.json' para autenticar o DVC:")
+uploaded = files.upload()
 
-drive_candidates = [
-    "/content/drive/MyDrive/default.json",
-    "/content/drive/MyDrive/IFMaker/BioEcoInt/default.json",
-    "/content/drive/MyDrive/BioEcoInt_DVC_Auth/default.json",
-]
-
-for cand in drive_candidates:
-    if os.path.exists(cand):
-        shutil.copy2(cand, temp_creds_path)
-        print(f"✓ Credenciais headless do DVC carregadas de: {cand}")
-        found_creds = True
+default_json_file = None
+for fname in uploaded:
+    if fname.endswith(".json"):
+        default_json_file = fname
         break
 
-if not found_creds:
-    print("🔍 Procurando default.json no Google Drive...")
-    matches = glob.glob("/content/drive/MyDrive/**/default.json", recursive=True)
-    if matches:
-        shutil.copy2(matches[0], temp_creds_path)
-        print(f"✓ Credenciais headless do DVC encontradas em: {matches[0]}")
-        found_creds = True
+if not default_json_file or not os.path.exists(default_json_file):
+    raise RuntimeError("❌ Falha crítica: O arquivo 'default.json' é obrigatório para autenticar o DVC.")
 
-if not found_creds:
-    try:
-        from google.colab import userdata
-        secret_json = userdata.get('DVC_DEFAULT_JSON')
-        if secret_json:
-            with open(temp_creds_path, "w") as f:
-                f.write(secret_json)
-            try:
-                shutil.copy2(temp_creds_path, "/content/drive/MyDrive/default.json")
-            except Exception:
-                pass
-            print("✓ Credenciais do DVC carregadas via Colab Secrets (DVC_DEFAULT_JSON) e salvas em MyDrive!")
-            found_creds = True
-    except Exception:
-        pass
+with open(default_json_file, "r") as f:
+    creds = json.load(f)
 
-if not found_creds:
-    print("\\n⚠️ Credenciais headless 'default.json' não encontradas no Google Drive nem em Colab Secrets.")
-    print("📤 Faça o upload do seu arquivo 'default.json' abaixo (ele será salvo no seu Drive para nunca mais pedir):")
-    from google.colab import files
-    uploaded = files.upload()
-    for fname in uploaded:
-        if fname.endswith(".json"):
-            shutil.move(fname, temp_creds_path)
-            try:
-                shutil.copy2(temp_creds_path, "/content/drive/MyDrive/default.json")
-                print("💾 Cópia salva em /content/drive/MyDrive/default.json!")
-            except Exception:
-                pass
-            print(f"✓ Credenciais recebidas com sucesso a partir de {fname}!")
-            found_creds = True
-            break
+cid = creds.get("client_id")
+cs = creds.get("client_secret")
 
-# Instala no diretório correto do PyDrive2 e configura o remote dinamicamente
-if os.path.exists(temp_creds_path):
-    try:
-        with open(temp_creds_path, "r") as f:
-            cdata = json.load(f)
-        cid = cdata.get("client_id")
-        cs = cdata.get("client_secret")
-        
-        if cid:
-            creds_dir = f"/root/.cache/pydrive2fs/{cid}"
-            os.makedirs(creds_dir, exist_ok=True)
-            target_file = os.path.join(creds_dir, "default.json")
-            shutil.copy2(temp_creds_path, target_file)
-            print(f"✅ Credenciais instaladas com sucesso em {target_file}")
-            
-        if cs:
-            subprocess.run(["uv", "run", "dvc", "remote", "modify", "--local", "gdrive-storage", "gdrive_client_secret", cs], check=False)
-    except Exception as e:
-        print(f"⚠️ Erro ao configurar credenciais: {e}")
-else:
-    print("⚠️ Prosseguindo sem credenciais prévias do PyDrive2.")
+if not cid or not cs:
+    raise ValueError("❌ Falha crítica: 'default.json' inválido. Campos 'client_id' ou 'client_secret' ausentes.")
 
-# 3. Sincronização dos Datasets
+creds_dir = f"/root/.cache/pydrive2fs/{cid}"
+os.makedirs(creds_dir, exist_ok=True)
+target_file = os.path.join(creds_dir, "default.json")
+shutil.move(default_json_file, target_file)
+print(f"✅ Credenciais instaladas com sucesso em {target_file}")
+
+# Configura o segredo local no remote do DVC
+subprocess.run(["uv", "run", "dvc", "remote", "modify", "--local", "gdrive-storage", "gdrive_client_secret", cs], check=True)
+
+# 3. Download e Descompactação Direta dos Datasets via DVC
 LOCAL_DATA_DIR = "datasets/generated"
 os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
 
@@ -177,48 +127,20 @@ for ds_name in ["animals_video_sanitized", "animals_video_sam2_crops"]:
     zip_name = f"{ds_name}.zip"
     target_dir = os.path.join(LOCAL_DATA_DIR, ds_name)
     local_zip = os.path.join(LOCAL_DATA_DIR, zip_name)
+    dvc_file = f"{LOCAL_DATA_DIR}/{zip_name}.dvc"
     
     if os.path.exists(target_dir) and len(os.listdir(target_dir)) > 0:
         print(f"✅ Dataset {ds_name} já presente em {target_dir}!")
         continue
 
-    # A. Tenta achar arquivo zip no Google Drive
-    found_zip = None
-    direct_paths = [
-        os.path.join("/content/drive/MyDrive", zip_name),
-        os.path.join("/content/drive/MyDrive/IFMaker/BioEcoInt", zip_name),
-    ]
-    for dp in direct_paths:
-        if os.path.exists(dp):
-            found_zip = dp
-            break
+    print(f"⬇️ Puxando {zip_name} via DVC...")
+    res = subprocess.run(["uv", "run", "dvc", "pull", dvc_file], check=False)
+    if res.returncode != 0 or not os.path.exists(local_zip):
+        raise RuntimeError(f"❌ Falha ao baixar {zip_name} via DVC. Verifique as credenciais ou o remote gdrive-storage.")
 
-    if not found_zip:
-        print(f"🔍 Procurando {zip_name} no Google Drive...")
-        matches = glob.glob(f"/content/drive/MyDrive/**/{zip_name}", recursive=True)
-        if matches:
-            found_zip = matches[0]
-
-    if found_zip:
-        print(f"📦 Copiando {zip_name} de {found_zip}...")
-        shutil.copy2(found_zip, local_zip)
-        print(f"📂 Descompactando {zip_name}...")
-        subprocess.run(["unzip", "-q", "-o", local_zip, "-d", LOCAL_DATA_DIR], check=True)
-        print(f"✅ {ds_name} pronto com sucesso!")
-    else:
-        print(f"🔄 {zip_name} não encontrado solto no Drive. Baixando via DVC (headless)...")
-        dvc_file = f"{LOCAL_DATA_DIR}/{zip_name}.dvc"
-        if os.path.exists(dvc_file):
-            subprocess.run(["uv", "run", "dvc", "pull", dvc_file], check=False)
-        else:
-            subprocess.run(["uv", "run", "dvc", "pull", "-r", "gdrive-storage"], check=False)
-        
-        if os.path.exists(local_zip):
-            print(f"📂 Descompactando {zip_name}...")
-            subprocess.run(["unzip", "-q", "-o", local_zip, "-d", LOCAL_DATA_DIR], check=True)
-            print(f"✅ {ds_name} pronto via DVC!")
-        else:
-            print(f"⚠️ Aviso: Verifique a disponibilidade de {zip_name}.")
+    print(f"📂 Descompactando {zip_name}...")
+    subprocess.run(["unzip", "-q", "-o", local_zip, "-d", LOCAL_DATA_DIR], check=True)
+    print(f"✅ {ds_name} pronto com sucesso!")
 """))
 
     # 6. FAMÍLIA 1: ResNet-18
