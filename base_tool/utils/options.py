@@ -10,14 +10,17 @@ def parse_options(opt_path, is_train=True):
 
     # Exportar caminhos uteis
     root_path = os.path.abspath(os.path.join(__file__, '..', '..', '..'))
+    exp_root = os.path.join(root_path, 'experiments', opt['name'])
     opt['path'] = {
         'root': root_path,
-        'experiments_root': os.path.join(root_path, 'experiments', opt['name'])
+        'experiments_root': exp_root,
+        'models': os.path.join(exp_root, 'models'),
+        'visualization': os.path.join(exp_root, 'visualization'),
     }
     
     # Criar diretorios de experimento
     os.makedirs(opt['path']['experiments_root'], exist_ok=True)
-    os.makedirs(os.path.join(opt['path']['experiments_root'], 'models'), exist_ok=True)
-    os.makedirs(os.path.join(opt['path']['experiments_root'], 'visualization'), exist_ok=True)
+    os.makedirs(opt['path']['models'], exist_ok=True)
+    os.makedirs(opt['path']['visualization'], exist_ok=True)
 
     return opt

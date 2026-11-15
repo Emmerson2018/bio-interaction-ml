@@ -82,13 +82,16 @@ def train_single_run(opt, run_idx: int, total_runs: int, seed: int, logger):
     # Constrói os visualizadores
     visualizers = []
     if 'visualization' in opt:
+        viz_base_dir = opt['path'].get('visualization', os.path.join(opt['path']['experiments_root'], 'visualization'))
         for viz_name, viz_opt in opt['visualization'].items():
             viz_opt_copy = copy.deepcopy(viz_opt)
             viz_opt_copy['path'] = copy.deepcopy(opt['path'])
             if total_runs > 1:
-                run_viz_dir = os.path.join(opt['path']['visualization'], f"run_{run_idx}")
+                run_viz_dir = os.path.join(viz_base_dir, f"run_{run_idx}")
                 os.makedirs(run_viz_dir, exist_ok=True)
                 viz_opt_copy['path']['visualization'] = run_viz_dir
+            else:
+                viz_opt_copy['path']['visualization'] = viz_base_dir
             viz_opt_copy['name'] = opt['name']
             visualizers.append(build_visualizer(viz_opt_copy))
 
