@@ -1,0 +1,357 @@
+{
+  "total_test_videos": 24,
+  "total_evaluated_frames": 144,
+  "single_frame_metrics": {
+    "accuracy": 0.6806,
+    "macro_f1": 0.6648
+  },
+  "committee_metrics": {
+    "threshold": 0.7,
+    "decided_videos": 14,
+    "abstained_videos": 10,
+    "abstention_rate": 0.4167,
+    "accuracy_on_decided": 1.0,
+    "overall_effective_accuracy": 0.5833
+  },
+  "details": [
+    {
+      "video_key": "anta/07.mp4",
+      "true_class": "anta",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.5,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sucuri": 3,
+        "anta": 2,
+        "harpia": 1
+      },
+      "mean_frame_confidence": 0.148,
+      "correct": false
+    },
+    {
+      "video_key": "arara/01.mp4",
+      "true_class": "arara",
+      "predicted_class": "arara",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 0.833,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "arara": 5,
+        "fundo_sem_animal": 1
+      },
+      "mean_frame_confidence": 0.247,
+      "correct": true
+    },
+    {
+      "video_key": "ariranha/01.mp4",
+      "true_class": "ariranha",
+      "predicted_class": "ariranha",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "ariranha": 6
+      },
+      "mean_frame_confidence": 0.233,
+      "correct": true
+    },
+    {
+      "video_key": "boto/01.mp4",
+      "true_class": "boto",
+      "predicted_class": "boto",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "boto": 6
+      },
+      "mean_frame_confidence": 0.246,
+      "correct": true
+    },
+    {
+      "video_key": "capivara/06.mp4",
+      "true_class": "capivara",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.333,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sucuri": 1,
+        "anta": 2,
+        "jacare": 2,
+        "capivara": 1
+      },
+      "mean_frame_confidence": 0.125,
+      "correct": false
+    },
+    {
+      "video_key": "fundo_sem_animal/10.mp4",
+      "true_class": "fundo_sem_animal",
+      "predicted_class": "fundo_sem_animal",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "fundo_sem_animal": 6
+      },
+      "mean_frame_confidence": 0.185,
+      "correct": true
+    },
+    {
+      "video_key": "fundo_sem_animal/06.mp4",
+      "true_class": "fundo_sem_animal",
+      "predicted_class": "fundo_sem_animal",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "fundo_sem_animal": 6
+      },
+      "mean_frame_confidence": 0.179,
+      "correct": true
+    },
+    {
+      "video_key": "gafanhoto/03.mp4",
+      "true_class": "gafanhoto",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.5,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "jaraqui": 2,
+        "ariranha": 1,
+        "gafanhoto": 3
+      },
+      "mean_frame_confidence": 0.136,
+      "correct": false
+    },
+    {
+      "video_key": "harpia/09.mp4",
+      "true_class": "harpia",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.333,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "onca": 1,
+        "harpia": 1,
+        "fundo_sem_animal": 1,
+        "jacare": 2,
+        "anta": 1
+      },
+      "mean_frame_confidence": 0.118,
+      "correct": false
+    },
+    {
+      "video_key": "harpia/06.mp4",
+      "true_class": "harpia",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.5,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "harpia": 3,
+        "jacare": 1,
+        "arara": 1,
+        "jaraqui": 1
+      },
+      "mean_frame_confidence": 0.119,
+      "correct": false
+    },
+    {
+      "video_key": "jacare/04.mp4",
+      "true_class": "jacare",
+      "predicted_class": "jacare",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 0.833,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sapo": 1,
+        "jacare": 5
+      },
+      "mean_frame_confidence": 0.182,
+      "correct": true
+    },
+    {
+      "video_key": "jacare/11.mp4",
+      "true_class": "jacare",
+      "predicted_class": "jacare",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "jacare": 6
+      },
+      "mean_frame_confidence": 0.266,
+      "correct": true
+    },
+    {
+      "video_key": "jaraqui/02.mp4",
+      "true_class": "jaraqui",
+      "predicted_class": "jaraqui",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 0.833,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "jaraqui": 5,
+        "jacare": 1
+      },
+      "mean_frame_confidence": 0.239,
+      "correct": true
+    },
+    {
+      "video_key": "onca/11.mp4",
+      "true_class": "onca",
+      "predicted_class": "onca",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 0.833,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "onca": 5,
+        "sucuri": 1
+      },
+      "mean_frame_confidence": 0.154,
+      "correct": true
+    },
+    {
+      "video_key": "onca/05.mp4",
+      "true_class": "onca",
+      "predicted_class": "onca",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "onca": 6
+      },
+      "mean_frame_confidence": 0.314,
+      "correct": true
+    },
+    {
+      "video_key": "pirarucu/02.mp4",
+      "true_class": "pirarucu",
+      "predicted_class": "pirarucu",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 0.833,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "pirarucu": 5,
+        "surubim": 1
+      },
+      "mean_frame_confidence": 0.191,
+      "correct": true
+    },
+    {
+      "video_key": "sapo/08.mp4",
+      "true_class": "sapo",
+      "predicted_class": "sapo",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sapo": 6
+      },
+      "mean_frame_confidence": 0.317,
+      "correct": true
+    },
+    {
+      "video_key": "sapo/11.mp4",
+      "true_class": "sapo",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.667,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sapo": 4,
+        "sucuri": 2
+      },
+      "mean_frame_confidence": 0.178,
+      "correct": false
+    },
+    {
+      "video_key": "sucuri/10.mp4",
+      "true_class": "sucuri",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.667,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "surubim": 4,
+        "sucuri": 2
+      },
+      "mean_frame_confidence": 0.168,
+      "correct": false
+    },
+    {
+      "video_key": "sucuri/09.mp4",
+      "true_class": "sucuri",
+      "predicted_class": "sucuri",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sucuri": 6
+      },
+      "mean_frame_confidence": 0.208,
+      "correct": true
+    },
+    {
+      "video_key": "surubim/13.mp4",
+      "true_class": "surubim",
+      "predicted_class": "surubim",
+      "status": "CONSENSO_ATINGIDO",
+      "consensus_ratio": 1.0,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "surubim": 6
+      },
+      "mean_frame_confidence": 0.218,
+      "correct": true
+    },
+    {
+      "video_key": "surubim/11.mp4",
+      "true_class": "surubim",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.333,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "jaraqui": 2,
+        "surubim": 1,
+        "sucuri": 2,
+        "gafanhoto": 1
+      },
+      "mean_frame_confidence": 0.146,
+      "correct": false
+    },
+    {
+      "video_key": "tamandua/11.mp4",
+      "true_class": "tamandua",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.667,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "sucuri": 4,
+        "tamandua": 2
+      },
+      "mean_frame_confidence": 0.139,
+      "correct": false
+    },
+    {
+      "video_key": "tamandua/01.mp4",
+      "true_class": "tamandua",
+      "predicted_class": "ABSTAIN",
+      "status": "ABSTENÇÃO_SEM_CONSENSO",
+      "consensus_ratio": 0.667,
+      "total_frames": 6,
+      "votes_breakdown": {
+        "capivara": 4,
+        "ariranha": 1,
+        "jacare": 1
+      },
+      "mean_frame_confidence": 0.133,
+      "correct": false
+    }
+  ]
+}

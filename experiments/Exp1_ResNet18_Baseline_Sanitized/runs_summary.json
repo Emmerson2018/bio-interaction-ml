@@ -1,0 +1,39 @@
+{
+  "experiment_name": "Exp1_ResNet18_Baseline_Sanitized",
+  "num_runs": 3,
+  "base_seed": 42,
+  "best_run_idx": 1,
+  "runs": [
+    {
+      "run": 1,
+      "seed": 42,
+      "best_macro_f1": 0.718640893582968,
+      "best_accuracy": 0.7071999907493591,
+      "best_epoch": 7
+    },
+    {
+      "run": 2,
+      "seed": 142,
+      "best_macro_f1": 0.6930989243930854,
+      "best_accuracy": 0.6959999799728394,
+      "best_epoch": 6
+    },
+    {
+      "run": 3,
+      "seed": 242,
+      "best_macro_f1": 0.7102444135648727,
+      "best_accuracy": 0.7184000015258789,
+      "best_epoch": 4
+    }
+  ],
+  "metrics_summary": {
+    "macro_f1_mean": 0.7073,
+    "macro_f1_std": 0.013,
+    "macro_f1_min": 0.6931,
+    "macro_f1_max": 0.7186,
+    "accuracy_mean": 0.7072,
+    "accuracy_std": 0.0112,
+    "accuracy_min": 0.696,
+    "accuracy_max": 0.7184
+  }
+}

@@ -1,25 +1,25 @@
 {
   "experiment_name": "Exp_RepViT_M0_9_SAM2_Crops",
   "checkpoint": "/content/bio-interaction-ml/experiments/Exp_RepViT_M0_9_SAM2_Crops/models/best_macro_f1.pth",
-  "test_loss": 1.3707523047924042,
-  "test_accuracy": 0.6659836065573771,
+  "test_loss": 1.2503232657909393,
+  "test_accuracy": 0.7090163934426229,
   "metrics_per_class": {
     "anta": {
-      "precision": 0.4444444444444444,
+      "precision": 0.6666666666666666,
       "recall": 0.6666666666666666,
-      "f1-score": 0.5333333333333333,
+      "f1-score": 0.6666666666666666,
       "support": 12.0
     },
     "arara": {
-      "precision": 0.6923076923076923,
-      "recall": 0.6,
-      "f1-score": 0.6428571428571429,
+      "precision": 0.7142857142857143,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.6896551724137931,
       "support": 15.0
     },
     "ariranha": {
-      "precision": 0.9545454545454546,
-      "recall": 0.75,
-      "f1-score": 0.84,
+      "precision": 0.9583333333333334,
+      "recall": 0.8214285714285714,
+      "f1-score": 0.8846153846153846,
       "support": 28.0
     },
     "boto": {
@@ -29,88 +29,88 @@
       "support": 18.0
     },
     "capivara": {
-      "precision": 0.35294117647058826,
-      "recall": 0.35294117647058826,
-      "f1-score": 0.35294117647058826,
+      "precision": 0.6,
+      "recall": 0.5294117647058824,
+      "f1-score": 0.5625,
       "support": 17.0
     },
     "fundo_sem_animal": {
-      "precision": 0.2727272727272727,
-      "recall": 0.6,
-      "f1-score": 0.375,
+      "precision": 0.36666666666666664,
+      "recall": 0.7333333333333333,
+      "f1-score": 0.4888888888888889,
       "support": 15.0
     },
     "gafanhoto": {
-      "precision": 0.10810810810810811,
+      "precision": 0.10526315789473684,
       "recall": 0.3333333333333333,
-      "f1-score": 0.16326530612244897,
+      "f1-score": 0.16,
       "support": 12.0
     },
     "harpia": {
-      "precision": 0.9038461538461539,
-      "recall": 0.5949367088607594,
-      "f1-score": 0.7175572519083969,
+      "precision": 0.8596491228070176,
+      "recall": 0.620253164556962,
+      "f1-score": 0.7205882352941176,
       "support": 79.0
     },
     "jacare": {
-      "precision": 0.6470588235294118,
-      "recall": 0.4782608695652174,
-      "f1-score": 0.55,
+      "precision": 0.8275862068965517,
+      "recall": 0.5217391304347826,
+      "f1-score": 0.64,
       "support": 46.0
     },
     "jaraqui": {
-      "precision": 0.4772727272727273,
-      "recall": 0.6363636363636364,
-      "f1-score": 0.5454545454545454,
+      "precision": 0.6153846153846154,
+      "recall": 0.7272727272727273,
+      "f1-score": 0.6666666666666666,
       "support": 33.0
     },
     "onca": {
-      "precision": 0.9722222222222222,
-      "recall": 0.9722222222222222,
-      "f1-score": 0.9722222222222222,
+      "precision": 0.9230769230769231,
+      "recall": 1.0,
+      "f1-score": 0.96,
       "support": 36.0
     },
     "pirarucu": {
-      "precision": 0.9696969696969697,
-      "recall": 0.8888888888888888,
-      "f1-score": 0.927536231884058,
+      "precision": 0.96875,
+      "recall": 0.8611111111111112,
+      "f1-score": 0.9117647058823529,
       "support": 36.0
     },
     "sapo": {
-      "precision": 0.8292682926829268,
-      "recall": 0.7555555555555555,
-      "f1-score": 0.7906976744186046,
+      "precision": 0.8444444444444444,
+      "recall": 0.8444444444444444,
+      "f1-score": 0.8444444444444444,
       "support": 45.0
     },
     "sucuri": {
-      "precision": 0.92,
-      "recall": 1.0,
-      "f1-score": 0.9583333333333334,
+      "precision": 1.0,
+      "recall": 0.9565217391304348,
+      "f1-score": 0.9777777777777777,
       "support": 23.0
     },
     "surubim": {
-      "precision": 0.5476190476190477,
-      "recall": 0.6216216216216216,
-      "f1-score": 0.5822784810126582,
+      "precision": 0.4888888888888889,
+      "recall": 0.5945945945945946,
+      "f1-score": 0.5365853658536586,
       "support": 37.0
     },
     "tamandua": {
-      "precision": 0.8421052631578947,
-      "recall": 0.4444444444444444,
-      "f1-score": 0.5818181818181818,
+      "precision": 0.8,
+      "recall": 0.5555555555555556,
+      "f1-score": 0.6557377049180327,
       "support": 36.0
     },
-    "accuracy": 0.6659836065573771,
+    "accuracy": 0.7090163934426229,
     "macro avg": {
-      "precision": 0.6634988644030686,
-      "recall": 0.6580355285828917,
-      "f1-score": 0.6427059300522195,
+      "precision": 0.7138008701352337,
+      "recall": 0.704104133535525,
+      "f1-score": 0.6947431883388615,
       "support": 488.0
     },
     "weighted avg": {
-      "precision": 0.7417798472495201,
-      "recall": 0.6659836065573771,
-      "f1-score": 0.6867585828347187,
+      "precision": 0.7726784853717815,
+      "recall": 0.7090163934426229,
+      "f1-score": 0.7277233534657672,
       "support": 488.0
     }
   }

@@ -1,0 +1,11 @@
+{
+  "best_trial": 10,
+  "best_macro_f1": 0.8132448991392773,
+  "best_params": {
+    "head_lr": 0.0011237829284418096,
+    "backbone_ratio": 0.16213031139135384,
+    "weight_decay": 0.001955159293741144,
+    "dropout": 0.1078221396292794
+  },
+  "trials_count": 13
+}

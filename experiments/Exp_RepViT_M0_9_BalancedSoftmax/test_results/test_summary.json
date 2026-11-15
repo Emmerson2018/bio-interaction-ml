@@ -1,116 +1,116 @@
 {
   "experiment_name": "Exp_RepViT_M0_9_BalancedSoftmax",
-  "checkpoint": "/home/xsacbj/www/IFMaker/BioEcoInt/bio-interaction-ml/experiments/Exp_RepViT_M0_9_BalancedSoftmax/models/best_macro_f1.pth",
-  "test_loss": 1.4121974408626556,
-  "test_accuracy": 0.6229508196721312,
+  "checkpoint": "/content/bio-interaction-ml/experiments/Exp_RepViT_M0_9_BalancedSoftmax/models/best_macro_f1.pth",
+  "test_loss": 1.2366591393947601,
+  "test_accuracy": 0.7254098360655737,
   "metrics_per_class": {
     "anta": {
-      "precision": 0.18181818181818182,
-      "recall": 0.16666666666666666,
-      "f1-score": 0.17391304347826086,
+      "precision": 0.4444444444444444,
+      "recall": 0.3333333333333333,
+      "f1-score": 0.38095238095238093,
       "support": 12.0
     },
     "arara": {
-      "precision": 0.7142857142857143,
-      "recall": 0.3333333333333333,
-      "f1-score": 0.45454545454545453,
+      "precision": 0.7647058823529411,
+      "recall": 0.8666666666666667,
+      "f1-score": 0.8125,
       "support": 15.0
     },
     "ariranha": {
-      "precision": 1.0,
-      "recall": 0.7857142857142857,
-      "f1-score": 0.88,
+      "precision": 0.9615384615384616,
+      "recall": 0.8928571428571429,
+      "f1-score": 0.9259259259259259,
       "support": 28.0
     },
     "boto": {
-      "precision": 0.6956521739130435,
-      "recall": 0.8888888888888888,
-      "f1-score": 0.7804878048780488,
+      "precision": 0.9473684210526315,
+      "recall": 1.0,
+      "f1-score": 0.972972972972973,
       "support": 18.0
     },
     "capivara": {
-      "precision": 0.2631578947368421,
-      "recall": 0.29411764705882354,
-      "f1-score": 0.2777777777777778,
+      "precision": 0.44,
+      "recall": 0.6470588235294118,
+      "f1-score": 0.5238095238095238,
       "support": 17.0
     },
     "fundo_sem_animal": {
-      "precision": 0.25925925925925924,
-      "recall": 0.4666666666666667,
-      "f1-score": 0.3333333333333333,
+      "precision": 0.46875,
+      "recall": 1.0,
+      "f1-score": 0.6382978723404256,
       "support": 15.0
     },
     "gafanhoto": {
-      "precision": 0.08333333333333333,
-      "recall": 0.4166666666666667,
-      "f1-score": 0.1388888888888889,
+      "precision": 0.7272727272727273,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.6956521739130435,
       "support": 12.0
     },
     "harpia": {
-      "precision": 0.8260869565217391,
-      "recall": 0.4810126582278481,
-      "f1-score": 0.608,
+      "precision": 0.9772727272727273,
+      "recall": 0.5443037974683544,
+      "f1-score": 0.6991869918699187,
       "support": 79.0
     },
     "jacare": {
-      "precision": 0.926829268292683,
-      "recall": 0.8260869565217391,
-      "f1-score": 0.8735632183908046,
+      "precision": 0.9761904761904762,
+      "recall": 0.8913043478260869,
+      "f1-score": 0.9318181818181818,
       "support": 46.0
     },
     "jaraqui": {
-      "precision": 0.32432432432432434,
-      "recall": 0.7272727272727273,
-      "f1-score": 0.4485981308411215,
+      "precision": 0.8648648648648649,
+      "recall": 0.9696969696969697,
+      "f1-score": 0.9142857142857143,
       "support": 33.0
     },
     "onca": {
-      "precision": 0.8780487804878049,
-      "recall": 1.0,
-      "f1-score": 0.935064935064935,
+      "precision": 1.0,
+      "recall": 0.9722222222222222,
+      "f1-score": 0.9859154929577465,
       "support": 36.0
     },
     "pirarucu": {
-      "precision": 0.875,
-      "recall": 0.7777777777777778,
-      "f1-score": 0.8235294117647058,
+      "precision": 1.0,
+      "recall": 0.8888888888888888,
+      "f1-score": 0.9411764705882353,
       "support": 36.0
     },
     "sapo": {
-      "precision": 0.96875,
-      "recall": 0.6888888888888889,
-      "f1-score": 0.8051948051948052,
+      "precision": 0.9375,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.7792207792207793,
       "support": 45.0
     },
     "sucuri": {
-      "precision": 1.0,
-      "recall": 0.6521739130434783,
-      "f1-score": 0.7894736842105263,
+      "precision": 0.21739130434782608,
+      "recall": 0.8695652173913043,
+      "f1-score": 0.34782608695652173,
       "support": 23.0
     },
     "surubim": {
-      "precision": 0.9411764705882353,
-      "recall": 0.43243243243243246,
-      "f1-score": 0.5925925925925926,
+      "precision": 0.8148148148148148,
+      "recall": 0.5945945945945946,
+      "f1-score": 0.6875,
       "support": 37.0
     },
     "tamandua": {
-      "precision": 0.7619047619047619,
-      "recall": 0.4444444444444444,
-      "f1-score": 0.5614035087719298,
+      "precision": 0.625,
+      "recall": 0.1388888888888889,
+      "f1-score": 0.22727272727272727,
       "support": 36.0
     },
-    "accuracy": 0.6229508196721312,
+    "accuracy": 0.7254098360655737,
     "macro avg": {
-      "precision": 0.6687266949666202,
-      "recall": 0.5863839971002918,
-      "f1-score": 0.5922729118583241,
+      "precision": 0.7604446327594947,
+      "recall": 0.7464196391685749,
+      "f1-score": 0.716519580930256,
       "support": 488.0
     },
     "weighted avg": {
-      "precision": 0.7650281591664642,
-      "recall": 0.6229508196721312,
-      "f1-score": 0.6595081224970072,
+      "precision": 0.8329992804219684,
+      "recall": 0.7254098360655737,
+      "f1-score": 0.7404832485960858,
       "support": 488.0
     }
   }

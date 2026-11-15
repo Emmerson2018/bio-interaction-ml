@@ -1,0 +1,39 @@
+{
+  "experiment_name": "Exp_ResNet18_SAM2_Crops",
+  "num_runs": 3,
+  "base_seed": 42,
+  "best_run_idx": 1,
+  "runs": [
+    {
+      "run": 1,
+      "seed": 42,
+      "best_macro_f1": 0.0,
+      "best_accuracy": 0.0,
+      "best_epoch": 0
+    },
+    {
+      "run": 2,
+      "seed": 142,
+      "best_macro_f1": 0.0,
+      "best_accuracy": 0.0,
+      "best_epoch": 0
+    },
+    {
+      "run": 3,
+      "seed": 242,
+      "best_macro_f1": 0.0,
+      "best_accuracy": 0.0,
+      "best_epoch": 0
+    }
+  ],
+  "metrics_summary": {
+    "macro_f1_mean": 0.0,
+    "macro_f1_std": 0.0,
+    "macro_f1_min": 0.0,
+    "macro_f1_max": 0.0,
+    "accuracy_mean": 0.0,
+    "accuracy_std": 0.0,
+    "accuracy_min": 0.0,
+    "accuracy_max": 0.0
+  }
+}

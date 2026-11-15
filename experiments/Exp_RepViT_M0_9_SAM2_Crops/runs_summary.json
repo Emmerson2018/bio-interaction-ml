@@ -1,0 +1,39 @@
+{
+  "experiment_name": "Exp_RepViT_M0_9_SAM2_Crops",
+  "num_runs": 3,
+  "base_seed": 42,
+  "best_run_idx": 2,
+  "runs": [
+    {
+      "run": 1,
+      "seed": 42,
+      "best_macro_f1": 0.7578124724159179,
+      "best_accuracy": 0.788034200668335,
+      "best_epoch": 13
+    },
+    {
+      "run": 2,
+      "seed": 142,
+      "best_macro_f1": 0.7637508738937974,
+      "best_accuracy": 0.7931624054908752,
+      "best_epoch": 14
+    },
+    {
+      "run": 3,
+      "seed": 242,
+      "best_macro_f1": 0.7529742576688102,
+      "best_accuracy": 0.7863247990608215,
+      "best_epoch": 13
+    }
+  ],
+  "metrics_summary": {
+    "macro_f1_mean": 0.7582,
+    "macro_f1_std": 0.0054,
+    "macro_f1_min": 0.753,
+    "macro_f1_max": 0.7638,
+    "accuracy_mean": 0.7892,
+    "accuracy_std": 0.0036,
+    "accuracy_min": 0.7863,
+    "accuracy_max": 0.7932
+  }
+}

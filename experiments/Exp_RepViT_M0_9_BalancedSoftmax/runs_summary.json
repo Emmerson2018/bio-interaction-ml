@@ -1,0 +1,39 @@
+{
+  "experiment_name": "Exp_RepViT_M0_9_BalancedSoftmax",
+  "num_runs": 3,
+  "base_seed": 42,
+  "best_run_idx": 3,
+  "runs": [
+    {
+      "run": 1,
+      "seed": 42,
+      "best_macro_f1": 0.8131501562144194,
+      "best_accuracy": 0.8095999956130981,
+      "best_epoch": 8
+    },
+    {
+      "run": 2,
+      "seed": 142,
+      "best_macro_f1": 0.8000754214844703,
+      "best_accuracy": 0.7968000173568726,
+      "best_epoch": 19
+    },
+    {
+      "run": 3,
+      "seed": 242,
+      "best_macro_f1": 0.8304997352636999,
+      "best_accuracy": 0.8256000280380249,
+      "best_epoch": 17
+    }
+  ],
+  "metrics_summary": {
+    "macro_f1_mean": 0.8146,
+    "macro_f1_std": 0.0153,
+    "macro_f1_min": 0.8001,
+    "macro_f1_max": 0.8305,
+    "accuracy_mean": 0.8107,
+    "accuracy_std": 0.0144,
+    "accuracy_min": 0.7968,
+    "accuracy_max": 0.8256
+  }
+}

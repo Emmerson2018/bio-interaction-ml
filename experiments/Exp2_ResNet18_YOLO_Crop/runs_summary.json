@@ -1,0 +1,39 @@
+{
+  "experiment_name": "Exp2_ResNet18_YOLO_Crop",
+  "num_runs": 3,
+  "base_seed": 42,
+  "best_run_idx": 1,
+  "runs": [
+    {
+      "run": 1,
+      "seed": 42,
+      "best_macro_f1": 0.7225146402130532,
+      "best_accuracy": 0.7152000069618225,
+      "best_epoch": 6
+    },
+    {
+      "run": 2,
+      "seed": 142,
+      "best_macro_f1": 0.6917513512592961,
+      "best_accuracy": 0.7039999961853027,
+      "best_epoch": 6
+    },
+    {
+      "run": 3,
+      "seed": 242,
+      "best_macro_f1": 0.7108611473593615,
+      "best_accuracy": 0.7200000286102295,
+      "best_epoch": 9
+    }
+  ],
+  "metrics_summary": {
+    "macro_f1_mean": 0.7084,
+    "macro_f1_std": 0.0155,
+    "macro_f1_min": 0.6918,
+    "macro_f1_max": 0.7225,
+    "accuracy_mean": 0.7131,
+    "accuracy_std": 0.0082,
+    "accuracy_min": 0.704,
+    "accuracy_max": 0.72
+  }
+}
