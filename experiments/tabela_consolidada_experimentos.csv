@@ -2,8 +2,17 @@ Experimento,Diretório,Acurácia Teste (%),Macro F1 Teste (%),Val Macro F1 (%),F
 ResNet18 Baseline,Exp1_ResNet18_Baseline_Sanitized,52.14,52.64,68.77,test_summary.json
 ResNet18 + YOLO Crop,Exp2_ResNet18_YOLO_Crop,71.79,70.29,69.5,test_summary.json
 ResNet18 + Coord. Attention,Exp3_ResNet18_CoordinateAttention,62.22,60.04,72.43,test_summary.json
+ResNet18 + SAM2 Crops,Exp_ResNet18_SAM2_Crops,,,,Pendente
+MobileNetV4 Baseline,Exp_MobileNetV4_Small_Baseline,,,,Pendente
+MobileNetV4 + YOLO Crop,Exp_MobileNetV4_Small_YOLOCrop,,,,Pendente
+MobileNetV4 + Coord. Attention,Exp_MobileNetV4_Small_CoordinateAttention,,,,Pendente
 MobileNetV4 + SAM2 Crops,Exp_MobileNetV4_SAM2_Crops,,,,Pendente
-RepViT-M0.9 + SAM2 Crops (BS),Exp_RepViT_M0_9_SAM2_Crops,59.42,55.32,68.23,test_summary.json
+RepViT-M0.9 Baseline (BS),Exp_RepViT_M0_9_Baseline,,,,Pendente
+RepViT-M0.9 + YOLO Crop (BS),Exp_RepViT_M0_9_YOLOCrop,,,,Pendente
+RepViT-M0.9 + Coord. Attention (BS),Exp_RepViT_M0_9_CoordinateAttention,,,,Pendente
+RepViT-M0.9 + SAM2 Crops (BS),Exp_RepViT_M0_9_SAM2_Crops,66.6,64.27,68.23,test_summary.json
+Exp 4A: RepViT + Cross-Entropy,Exp_Loss_CE_RepViT,,,,Pendente
+Exp 4B: RepViT + Focal Loss,Exp_Loss_Focal_RepViT,,,,Pendente
 Exp 4C: RepViT + BalancedSoftmax (SOTA),Exp_RepViT_M0_9_BalancedSoftmax,62.3,59.23,80.26,test_summary.json
 MobileNetV4 + Focal Loss (Legado),Exp_Loss_Focal_MobileNetV4,,,45.77,train.log
 MobileNetV4 + BalancedSoftmax (Legado),Exp_MobileNetV4_Small_BalancedSoftmax,,,66.85,train.log

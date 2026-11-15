@@ -30,7 +30,8 @@ def build_colab_notebook():
 > **Laboratório IFMaker / BioEcoInt**  
 > **Arquiteturas Avaliadas:** ResNet-18, MobileNetV4-Conv-Small e RepViT-M0.9  
 > **Estratégias Avaliadas:** Baseline Sanitizado, YOLO Crops, SAM 2 Crops e Coordinate Attention (CA)  
-> **Estudo de Funções de Perda:** Cross-Entropy (4A), Focal Loss (4B) e Balanced Softmax (4C) no Campeão RepViT-M0.9
+> **Estudo de Funções de Perda:** Cross-Entropy (4A), Focal Loss (4B) e Balanced Softmax (4C) no Campeão RepViT-M0.9  
+> **Repetições Estatísticas:** 3 execuções independentes (`--runs 3`) por experimento para média e desvio padrão confiáveis.
 """))
 
     # 1. GPU
@@ -147,70 +148,70 @@ for ds_name in ["animals_video_sanitized", "animals_video_sam2_crops"]:
     cells.append(md_cell("""
 ---
 ## 📦 FAMÍLIA 1: ResNet-18 (Baseline Clássico)
-Avaliação de controle com convoluções residuais clássicas nas 4 estratégias de visão.
+Avaliação de controle com convoluções residuais clássicas nas 4 estratégias de visão (3 repetições independentes).
 """))
     cells.append(md_cell("#### Exp 1.1: ResNet-18 Baseline Sanitizado (Cross-Entropy)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp1_resnet18_baseline.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp1_resnet18_baseline.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 1.2: ResNet-18 + YOLO Crops (Two-Stage)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp2_resnet18_yolo_crop.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp2_resnet18_yolo_crop.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 1.3: ResNet-18 + Coordinate Attention (CA)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp3_resnet18_ca.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp3_resnet18_ca.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 1.4: ResNet-18 + SAM 2 Crops (Segmentação por Instância)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_resnet18_sam2_crops.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_resnet18_sam2_crops.yml --runs 3"))
 
     # 7. FAMÍLIA 2: MobileNetV4-Small
     cells.append(md_cell("""
 ---
 ## ⚡ FAMÍLIA 2: Google MobileNetV4-Small (Universal Inverted Bottlenecks - UIB)
-Avaliação da arquitetura móvel convolucional moderna (3.8M parâmetros) nas 4 estratégias de visão.
+Avaliação da arquitetura móvel convolucional moderna (3.8M parâmetros) nas 4 estratégias de visão (3 repetições independentes).
 """))
     cells.append(md_cell("#### Exp 2.1: MobileNetV4-Small Baseline (Sanitizado + Cross-Entropy)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_small_baseline.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_small_baseline.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 2.2: MobileNetV4-Small + YOLO Crops (Two-Stage)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_small_yolo_crop.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_small_yolo_crop.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 2.3: MobileNetV4-Small + Coordinate Attention (CA)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_small_ca.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_small_ca.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 2.4: MobileNetV4-Small + SAM 2 Crops (Segmentação por Instância)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_sam2_crops.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_mobilenetv4_sam2_crops.yml --runs 3"))
 
     # 8. FAMÍLIA 3: RepViT-M0.9 (Campeão SOTA com Balanced Softmax)
     cells.append(md_cell("""
 ---
 ## 🚀 FAMÍLIA 3: RepViT-M0.9 (Vision Transformer Reparametrizável + Balanced Softmax)
-Avaliação da arquitetura campeã (4.7M parâmetros) combinando atenção global de ViT com reparametrização estrutural mobile e loss Balanced Softmax em todas as variantes.
+Avaliação da arquitetura campeã (4.7M parâmetros) combinando atenção global de ViT com reparametrização estrutural mobile e loss Balanced Softmax em todas as variantes (3 repetições independentes).
 """))
     cells.append(md_cell("#### Exp 3.1: RepViT-M0.9 Baseline Sanitizado (Balanced Softmax)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_baseline.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_baseline.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 3.2: RepViT-M0.9 + YOLO Crops (Two-Stage + Balanced Softmax)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_yolo_crop.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_yolo_crop.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 3.3: RepViT-M0.9 + Coordinate Attention (CA + Balanced Softmax)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_ca.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_ca.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 3.4: RepViT-M0.9 + SAM 2 Crops (Recortes Limpos Exemplar V2 + Balanced Softmax)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_sam2_crops.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9_sam2_crops.yml --runs 3"))
 
     # 9. ESTUDO DE PERDAS NO REPVIT
     cells.append(md_cell("""
 ---
 ## 🔬 ESTUDO DE FUNÇÕES DE PERDA NO REPVIT-M0.9 (Exp 4A, 4B e 4C)
-Análise iso-condicional do impacto do desbalanceamento severo na modelagem de dependências não-locais de longo alcance do Transformer.
+Análise iso-condicional do impacto do desbalanceamento severo na modelagem de dependências não-locais de longo alcance do Transformer (3 repetições independentes).
 """))
     cells.append(md_cell("#### Exp 4A: RepViT-M0.9 + Cross-Entropy (Equivalente ao Baseline)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_loss_ce_repvit.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_loss_ce_repvit.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 4B: RepViT-M0.9 + Focal Loss (gamma = 2.0)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_loss_focal_repvit.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_loss_focal_repvit.yml --runs 3"))
 
     cells.append(md_cell("#### Exp 4C: RepViT-M0.9 + Balanced Softmax (Recorde SOTA 80.26% Macro-F1)"))
-    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9.yml"))
+    cells.append(code_cell("!MPLBACKEND=Agg uv run base-train -opt options/exp_repvit_m0_9.yml --runs 3"))
 
     # 10. Avaliação Estéril e Comitê Temporal
     cells.append(md_cell("""

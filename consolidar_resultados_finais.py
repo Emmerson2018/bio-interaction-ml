@@ -89,6 +89,24 @@ def main():
             "Fonte": "Pendente",
         }
         
+        # 0. Tentar ler runs_summary.json (Multi-Run Estatístico com Média e Desvio Padrão)
+        runs_summary = os.path.join(d, "runs_summary.json")
+        if os.path.exists(runs_summary):
+            try:
+                with open(runs_summary) as f:
+                    sdata = json.load(f)
+                n_runs = sdata.get("num_runs", 1)
+                f1_mean = sdata.get("metrics_summary", {}).get("macro_f1_mean", 0) * 100
+                f1_std = sdata.get("metrics_summary", {}).get("macro_f1_std", 0) * 100
+                if n_runs > 1:
+                    info["Val Macro F1 (%)"] = f"{f1_mean:.2f} ± {f1_std:.2f}"
+                    info["Fonte"] = f"runs_summary.json ({n_runs} runs)"
+                else:
+                    info["Val Macro F1 (%)"] = round(f1_mean, 2)
+                    info["Fonte"] = "runs_summary.json (1 run)"
+            except Exception:
+                pass
+
         # 1. Tentar ler test_summary.json
         if os.path.exists(test_summary):
             try:
@@ -179,16 +197,33 @@ def main():
             else:
                 colors.append("#78909c")  # Cinza para baselines ResNet18
                 
-        bars = ax.barh(plot_df["Experimento"], plot_df["Val Macro F1 (%)"], color=colors, edgecolor="black", linewidth=0.8, height=0.65)
+        # Extrair float para plotagem e xerr se houver desvio padrão
+        plot_vals = []
+        plot_errs = []
+        plot_texts = []
+        for v in plot_df["Val Macro F1 (%)"]:
+            if isinstance(v, str) and "±" in v:
+                parts = v.split("±")
+                plot_vals.append(float(parts[0].strip()))
+                plot_errs.append(float(parts[1].strip()))
+                plot_texts.append(f"{float(parts[0].strip()):.2f} ± {float(parts[1].strip()):.2f}%")
+            else:
+                fv = float(v)
+                plot_vals.append(fv)
+                plot_errs.append(0.0)
+                plot_texts.append(f"{fv:.2f}%")
+
+        bars = ax.barh(plot_df["Experimento"], plot_vals, xerr=plot_errs, capsize=3, color=colors, edgecolor="black", linewidth=0.8, height=0.65)
         ax.set_xlabel("Validation Macro F1 (%)", fontsize=12, fontweight="bold")
         ax.set_title("🌿 Comparativo SOTA de Validação — BioEcoInt Benchmark", fontsize=14, fontweight="bold", pad=15)
         ax.set_xlim(0, 100)
         
         # Anotações nas barras
-        for bar in bars:
+        for bar, txt, err in zip(bars, plot_texts, plot_errs):
             width = bar.get_width()
             y = bar.get_y() + bar.get_height() / 2
-            ax.text(width + 1.2, y, f"{width:.2f}%", va="center", ha="left", fontsize=11, fontweight="bold", color="#1a1a1a")
+            offset = max(err, 0) + 1.2
+            ax.text(width + offset, y, txt, va="center", ha="left", fontsize=10, fontweight="bold", color="#1a1a1a")
             
         # Linha de benchmark 80%
         ax.axvline(80.0, color="#d32f2f", linestyle="--", alpha=0.7, linewidth=1.2, label="Patamar SOTA 80%")
