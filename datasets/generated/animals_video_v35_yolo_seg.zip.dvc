@@ -1,0 +1,5 @@
+outs:
+- md5: 2a7395ec547af28640f0c2550ad70113
+  size: 1682523276
+  hash: md5
+  path: animals_video_v35_yolo_seg.zip
