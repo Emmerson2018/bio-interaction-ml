@@ -162,6 +162,65 @@ class TestYoloBenchmarkPipeline(unittest.TestCase):
                         cleaned.append(line)
                 ast.parse("".join(cleaned), filename=f"nb_cell_{idx}")
 
+    def test_e2e_relative_out_dir_1epoch_no_runs_segment_bug(self):
+        """
+        Regressao E2E real do bug do Colab:
+        Passar --output-dir relativo NAO deve fazer o Ultralytics salvar em runs/segment/...
+        e quebrar ao procurar weights/best.pt apos o fim da Run 1.
+        """
+        import os
+        import cv2
+        import torch
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            ds_dir = root / "mini_ds"
+            for sp in ("train", "val", "test"):
+                (ds_dir / "images" / sp).mkdir(parents=True)
+                (ds_dir / "labels" / sp).mkdir(parents=True)
+                img = np.full((64, 64, 3), 60, dtype=np.uint8)
+                cv2.rectangle(img, (16, 16), (48, 48), (220, 140, 40), -1)
+                cv2.imwrite(str(ds_dir / "images" / sp / "a_00.jpg"), img)
+                (ds_dir / "labels" / sp / "a_00.txt").write_text(
+                    "0 0.25 0.25 0.75 0.25 0.75 0.75 0.25 0.75\n",
+                    encoding="utf-8",
+                )
+            # Hard-negative vazio no test
+            bg = np.full((64, 64, 3), 30, dtype=np.uint8)
+            cv2.imwrite(str(ds_dir / "images" / "test" / "bg_00.jpg"), bg)
+            (ds_dir / "labels" / "test" / "bg_00.txt").write_text("", encoding="utf-8")
+
+            (ds_dir / "data.yaml").write_text(
+                "train: images/train\nval: images/val\ntest: images/test\nnc: 1\nnames:\n  0: anta\n",
+                encoding="utf-8",
+            )
+
+            prev_cwd = os.getcwd()
+            os.chdir(root)
+            try:
+                rel_out = Path("experiments/YOLO_Seg_Benchmark")
+                summary = run_benchmark_suite(
+                    data_yaml=Path("mini_ds/data.yaml"),
+                    models=["yolov8n-seg.yaml"],
+                    out_dir=rel_out,
+                    runs=1,
+                    base_seed=42,
+                    epochs=1,
+                    imgsz=64,
+                    batch=2,
+                    workers=0,
+                    device="0" if torch.cuda.is_available() else "cpu",
+                    resume=False,
+                    export_champion=False,
+                )
+            finally:
+                os.chdir(prev_cwd)
+
+            run_metrics = root / "experiments/YOLO_Seg_Benchmark/yolov8n-seg/run1_seed42/test_metrics.json"
+            self.assertTrue(run_metrics.exists(), f"test_metrics.json ausente em {run_metrics}")
+            self.assertFalse((root / "runs/segment").exists(), "Ultralytics redirecionou para runs/segment!")
+            self.assertEqual(summary["champion_model"], "yolov8n-seg.yaml")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -203,7 +203,7 @@ def run_benchmark_suite(
     base_seed: int = 42,
     epochs: int = 60,
     imgsz: int = 640,
-    batch: int = -1,
+    batch: int = 16,
     patience: int = 15,
     device: Optional[str] = None,
     resume: bool = True,
@@ -211,6 +211,7 @@ def run_benchmark_suite(
     export_champion: bool = True,
     champion_sizes: Sequence[int] = (640, 320),
 ) -> Dict[str, Any]:
+    out_dir = Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     resolved_yaml = resolve_portable_data_yaml(data_yaml, out_dir)
     dataset_root = Path(yaml.safe_load(resolved_yaml.read_text(encoding="utf-8"))["path"])
@@ -258,7 +259,7 @@ def run_benchmark_suite(
                 "cos_lr": True,
                 "amp": True,
                 "workers": int(workers),
-                "project": str(model_dir),
+                "project": str(model_dir.resolve()),
                 "name": run_name,
                 "exist_ok": True,
                 "plots": True,
@@ -267,9 +268,20 @@ def run_benchmark_suite(
                 train_kwargs["device"] = device
             yolo_model.train(**train_kwargs)
 
-            best_pt = run_dir / "weights" / "best.pt"
+            trainer_dir = Path(getattr(getattr(yolo_model, "trainer", None), "save_dir", run_dir))
+            best_pt = next(
+                (
+                    cand
+                    for base_d in (run_dir, trainer_dir)
+                    for cand in (base_d / "weights" / "best.pt", base_d / "weights" / "last.pt")
+                    if cand.exists()
+                ),
+                run_dir / "weights" / "best.pt",
+            )
             if not best_pt.exists():
-                best_pt = run_dir / "weights" / "last.pt"
+                raise FileNotFoundError(
+                    f"Pesos best.pt/last.pt nao encontrados em {run_dir} ou {trainer_dir}."
+                )
 
             best_model = YOLO(str(best_pt))
             val_kwargs: Dict[str, Any] = {
@@ -277,7 +289,7 @@ def run_benchmark_suite(
                 "split": "test",
                 "imgsz": int(imgsz),
                 "plots": True,
-                "project": str(model_dir),
+                "project": str(model_dir.resolve()),
                 "name": f"{run_name}_test",
                 "exist_ok": True,
             }
@@ -546,7 +558,7 @@ def export_and_benchmark_champion(
     results_by_size: Dict[str, Any] = {}
     for sz in export_sizes:
         sz_int = int(sz)
-        sz_dir = champ_dir / f"imgsz_{sz_int}"
+        sz_dir = (champ_dir / f"imgsz_{sz_int}").resolve()
         sz_dir.mkdir(parents=True, exist_ok=True)
         sz_pt = sz_dir / f"{slug}_{sz_int}.pt"
         shutil.copy2(local_best, sz_pt)
@@ -556,7 +568,7 @@ def export_and_benchmark_champion(
             "data": str(resolved_yaml),
             "split": "test",
             "imgsz": sz_int,
-            "project": str(sz_dir),
+            "project": str(sz_dir.resolve()),
             "name": f"val_test_{sz_int}",
             "exist_ok": True,
         }
@@ -613,7 +625,7 @@ def main() -> None:
     parser.add_argument("--base-seed", type=int, default=42)
     parser.add_argument("--epochs", type=int, default=60)
     parser.add_argument("--imgsz", type=int, default=640)
-    parser.add_argument("--batch", type=int, default=-1)
+    parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--patience", type=int, default=15)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--device", type=str, default=None)
@@ -623,7 +635,7 @@ def main() -> None:
     parser.add_argument("--consolidate-only", action="store_true")
     args = parser.parse_args()
 
-    out_dir = Path(args.output_dir)
+    out_dir = Path(args.output_dir).resolve()
     if args.consolidate_only:
         loaded: Dict[str, List[Dict[str, Any]]] = {}
         for ckpt in args.models:
